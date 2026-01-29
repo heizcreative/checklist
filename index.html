@@ -29,11 +29,10 @@
     background:var(--bg)!important;
   }
 
-  /* COMPACT BASE (smaller overall) */
   body{
     color:var(--text);
     font-family:var(--sans);
-    padding:8px; /* smaller */
+    padding:8px;
   }
 
   .wrap{ width:100%; margin:0 auto; }
@@ -49,26 +48,26 @@
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:8px; /* smaller */
+    padding:8px;
     border-bottom:1px solid rgba(255,255,255,.07);
   }
 
   .chip{
     font-family:var(--mono);
-    font-size:11px; /* smaller */
+    font-size:11px;
     color:rgba(255,255,255,.88);
-    padding:6px 12px; /* smaller */
+    padding:6px 12px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:118px; /* smaller */
+    min-width:118px;
     text-align:center;
   }
 
-  .content{ padding:8px; } /* smaller */
+  .content{ padding:8px; }
 
-  .groups{ display:flex; flex-direction:column; gap:8px; } /* smaller gap */
+  .groups{ display:flex; flex-direction:column; gap:8px; }
 
   .group{
     border:1px solid rgba(255,255,255,.10);
@@ -82,7 +81,7 @@
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:8px 8px; /* smaller */
+    padding:8px 8px;
     position:relative;
   }
 
@@ -97,10 +96,10 @@
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:5px 9px; /* smaller */
+    padding:5px 9px;
     border-radius:999px;
     font-family:var(--mono);
-    font-size:10px; /* smaller */
+    font-size:10px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     white-space:nowrap;
@@ -112,7 +111,7 @@
   }
 
   .groupTitle{
-    font-size:12px; /* smaller */
+    font-size:12px;
     font-weight:800;
     letter-spacing:.2px;
     white-space:nowrap;
@@ -121,7 +120,7 @@
   }
 
   .sub{
-    font-size:10px; /* smaller */
+    font-size:10px;
     color:rgba(255,255,255,.62);
     margin-top:2px;
   }
@@ -129,24 +128,24 @@
   .headRight{
     display:flex;
     align-items:center;
-    gap:8px; /* smaller */
+    gap:8px;
   }
 
   .countPill{
     font-family:var(--mono);
-    font-size:10px; /* smaller */
-    padding:5px 9px; /* smaller */
+    font-size:10px;
+    padding:5px 9px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     color:rgba(255,255,255,.78);
     white-space:nowrap;
-    min-width:54px; /* smaller */
+    min-width:54px;
     text-align:center;
   }
 
   .toggleBtn{
-    width:30px;height:30px; /* smaller */
+    width:30px;height:30px;
     border-radius:10px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
@@ -167,7 +166,7 @@
 
   .groupBody{
     border-top:1px solid rgba(255,255,255,.08);
-    padding:8px; /* smaller */
+    padding:8px;
     overflow:hidden;
 
     max-height:1000px;
@@ -184,14 +183,14 @@
 
   .collapsed .chev{ transform:rotate(-45deg); }
 
-  .items{ display:flex; flex-direction:column; gap:8px; } /* smaller */
+  .items{ display:flex; flex-direction:column; gap:8px; }
 
   .item{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:8px; /* smaller */
+    padding:8px;
     border-radius:12px;
     border:1px solid rgba(255,255,255,.08);
     background:rgba(0,0,0,.10);
@@ -206,7 +205,7 @@
   }
 
   .check{
-    width:20px;height:20px; /* smaller */
+    width:20px;height:20px;
     border-radius:7px;
     border:1px solid rgba(255,255,255,.16);
     background:rgba(0,0,0,.18);
@@ -230,7 +229,7 @@
   }
 
   .txt{
-    font-size:11px; /* smaller */
+    font-size:11px;
     color:rgba(255,255,255,.88);
     white-space:nowrap;
     overflow:hidden;
@@ -240,7 +239,7 @@
 
   .meta{
     font-family:var(--mono);
-    font-size:10px; /* smaller */
+    font-size:10px;
     color:var(--muted);
     white-space:nowrap;
   }
@@ -263,7 +262,6 @@
     text-decoration-color:rgba(255,255,255,.24);
   }
 
-  /* ✅ 1.5s checkbox glow burst */
   @keyframes checkBurst {
     0%   { box-shadow: 0 0 0 0 rgba(40,230,165,.0), 0 0 0 0 rgba(40,230,165,.0); }
     20%  { box-shadow: 0 0 0 6px rgba(40,230,165,.14), 0 0 18px rgba(40,230,165,.22); }
@@ -273,10 +271,10 @@
   .burst .check{ animation: checkBurst 1.5s ease-out; }
 
   .footer{
-    padding:8px 10px 10px; /* smaller */
+    padding:8px 10px 10px;
     border-top:1px solid rgba(255,255,255,.07);
     color:var(--muted);
-    font-size:10px; /* smaller */
+    font-size:10px;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -295,43 +293,16 @@
     cursor:pointer;
   }
 
-  /* ====== SECTION PULSE GLOW ====== */
-  @keyframes sectionPulse {
-    0%   { box-shadow: 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
-    50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10), 0 0 26px rgba(40,230,165,.14); }
-    100% { box-shadow: 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
-  }
-
-  /* applied to group container (soft) */
-  .pulseGlow{
-    animation: sectionPulse 1.8s ease-in-out infinite;
-  }
-
-  /* Make pulse color adjustable by CSS variable on the group */
-  .pulseGlow{
-    box-shadow: 0 0 0 rgba(40,230,165,0);
-  }
-  .pulseGlow{ --pulse: rgba(40,230,165,.14); }
-  .pulseGlow{ animation: sectionPulseVar 1.8s ease-in-out infinite; }
-
   @keyframes sectionPulseVar {
     0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-    50%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pulse) 70%, transparent),
-                    0 0 26px color-mix(in srgb, var(--pulse) 55%, transparent); }
+    50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10), 0 0 26px rgba(40,230,165,.14); }
     100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
   }
 
-  /* Fallback for browsers without color-mix */
-  @supports not (color: color-mix(in srgb, white 50%, black)) {
-    @keyframes sectionPulseVar {
-      0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-      50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10),
-                      0 0 26px rgba(40,230,165,.14); }
-      100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-    }
+  .pulseGlow{
+    animation: sectionPulseVar 1.8s ease-in-out infinite;
   }
 
-  /* Mobile compact */
   @media (max-width: 430px){
     body{ padding:6px; }
     .content{ padding:8px; }
@@ -352,7 +323,7 @@
     </div>
 
     <div class="footer">
-      <div id="footLeft">Auto reset daily (ET)</div>
+      <div id="footLeft"></div><!-- hidden text -->
       <button class="btn" id="resetBtn" type="button">Reset</button>
     </div>
   </div>
@@ -361,7 +332,6 @@
 <script>
   const TZ = "America/Toronto";
 
-  // Your groups (same as before)
   const WEEKDAY_GROUPS = [
     {
       id: "lock",
@@ -454,14 +424,55 @@
   function dayKey(){ return `chk_day_${ymd(TZ)}`; }
   function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }
 
+  // ---- Cookie backup (fixes Notion iPhone resets) ----
+  function setCookie(name, value, days=30){
+    try{
+      const expires = new Date(Date.now() + days*864e5).toUTCString();
+      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }catch{}
+  }
+  function getCookie(name){
+    try{
+      const key = encodeURIComponent(name) + "=";
+      const parts = document.cookie.split("; ");
+      for(const p of parts){
+        if(p.indexOf(key) === 0) return decodeURIComponent(p.substring(key.length));
+      }
+    }catch{}
+    return null;
+  }
+
   function safeRead(key, fallback){
+    // 1) try localStorage
     try{
       const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    }catch{ return fallback; }
+      if(raw) return JSON.parse(raw);
+    }catch{}
+    // 2) fallback to cookie
+    try{
+      const c = getCookie(key);
+      if(c){
+        const parsed = JSON.parse(c);
+        // repopulate localStorage if possible
+        try{ localStorage.setItem(key, JSON.stringify(parsed)); }catch{}
+        return parsed;
+      }
+    }catch{}
+    return fallback;
   }
+
   function safeWrite(key, val){
-    localStorage.setItem(key, JSON.stringify(val));
+    const s = JSON.stringify(val);
+    // write localStorage
+    try{ localStorage.setItem(key, s); }catch{}
+    // write cookie backup
+    setCookie(key, s, 30);
+  }
+
+  function safeRemove(key){
+    try{ localStorage.removeItem(key); }catch{}
+    // remove cookie
+    setCookie(key, "", -1);
   }
 
   function loadDayState(){ return safeRead(dayKey(), {}); }
@@ -471,17 +482,14 @@
   function saveCollapsed(map){ safeWrite(collapsedKey(), map); }
 
   // ---- Glow logic (ET) ----
-  // Pre-market: 8:30 → 9:30
-  // Killzone:   9:30 → 11:00
-  const PRE_OPEN  = 8*60 + 30;
-  const KZ_OPEN   = 9*60 + 30;
-  const KZ_CLOSE  = 11*60;
+  const PRE_OPEN  = 8*60 + 30;  // 8:30
+  const KZ_OPEN   = 9*60 + 30;  // 9:30
+  const KZ_CLOSE  = 11*60;      // 11:00
 
   function isBetween(now, start, end){
     return now >= start && now < end;
   }
 
-  // Post-trade review glows after 11:00 until all items in "post" are checked
   function postAllChecked(state){
     const g = WEEKDAY_GROUPS.find(x=>x.id==="post");
     if(!g) return true;
@@ -491,7 +499,7 @@
   // ---- Render weekday UI ----
   function renderWeekday(){
     topChip.textContent = "Checklist";
-    footLeft.textContent = "Auto reset daily (ET)";
+    footLeft.textContent = ""; // requested: don't display the auto reset text
     resetBtn.style.display = "inline-flex";
 
     const state = loadDayState();
@@ -509,7 +517,6 @@
       group.className = "group";
       group.dataset.gid = g.id;
 
-      // collapse state
       const isCollapsed =
         (collapsedMap[g.id] !== undefined)
           ? collapsedMap[g.id]
@@ -517,43 +524,34 @@
       if(isCollapsed) group.classList.add("collapsed");
 
       // ===== apply glow rules =====
-      // NO-TRADE LOCK pulses when NOT in killzone (before 9:30 OR after 11:00)
       if(g.id === "lock"){
         const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
         if(shouldGlow){
           group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
         }
       }
 
-      // NY PRE-MARKET pulses 8:30 → 9:30, stops at 9:30
       if(g.id === "premkt"){
         const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
         if(shouldGlow){
           group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
         }
       }
 
-      // NY KILLZONE pulses 9:30 → 11:00, stops at 11:00
       if(g.id === "killzone"){
         const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
         if(shouldGlow){
           group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
         }
       }
 
-      // ICT POST-TRADE REVIEW pulses after 11:00 until all checked
       if(g.id === "post"){
         const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
         if(shouldGlow){
           group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
         }
       }
 
-      // ===== head =====
       const head = document.createElement("div");
       head.className = "groupHead";
 
@@ -615,7 +613,6 @@
       head.appendChild(left);
       head.appendChild(right);
 
-      // ===== body =====
       const body = document.createElement("div");
       body.className = "groupBody";
 
@@ -641,13 +638,11 @@
           state[it.id] = !state[it.id];
           saveDayState(state);
 
-          // checkbox burst animation (1.5s)
           row.classList.remove("burst");
-          void row.offsetWidth; // restart animation
+          void row.offsetWidth;
           row.classList.add("burst");
           setTimeout(() => row.classList.remove("burst"), 1500);
 
-          // re-render to update counts + glow rules
           render();
         });
 
@@ -664,10 +659,9 @@
     root.appendChild(wrap);
   }
 
-  // ---- Weekend view (kept simple/minimal here) ----
   function renderWeekend(){
     topChip.textContent = "Weekend";
-    footLeft.textContent = "Weekend mode";
+    footLeft.textContent = "";
     resetBtn.style.display = "none";
 
     const card = document.createElement("div");
@@ -696,13 +690,14 @@
   }
 
   // ---- Auto reset after day ends (ET) ----
+  // This already resets at ET midnight because dayKey() changes by date.
   let lastDay = ymd(TZ);
 
   function render(){
     const today = ymd(TZ);
     if(today !== lastDay){
-      // new day: UI will automatically use a new storage key
       lastDay = today;
+      // no visible message; new day simply starts with empty state for that dayKey
     }
 
     if(isWeekend(TZ)) renderWeekend();
@@ -710,14 +705,14 @@
   }
 
   document.getElementById("resetBtn").addEventListener("click", () => {
-    localStorage.removeItem(dayKey());
-    localStorage.removeItem(collapsedKey());
+    safeRemove(dayKey());
+    safeRemove(collapsedKey());
     render();
   });
 
   render();
 
-  // Keep glow timing accurate + detect midnight ET
+  // Keep timing accurate + detect ET midnight while open
   setInterval(render, 15000);
 
   function hexToRgba(hex, a){
