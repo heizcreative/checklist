@@ -263,10 +263,10 @@
   }
 
   @keyframes checkBurst {
-    0%   { box-shadow: 0 0 0 0 rgba(40,230,165,.0), 0 0 0 0 rgba(40,230,165,.0); }
+    0%   { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 0 rgba(40,230,165,0); }
     20%  { box-shadow: 0 0 0 6px rgba(40,230,165,.14), 0 0 18px rgba(40,230,165,.22); }
     60%  { box-shadow: 0 0 0 10px rgba(40,230,165,.08), 0 0 24px rgba(40,230,165,.14); }
-    100% { box-shadow: 0 0 0 0 rgba(40,230,165,.0), 0 0 0 rgba(40,230,165,.0); }
+    100% { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
   }
   .burst .check{ animation: checkBurst 1.5s ease-out; }
 
@@ -276,11 +276,14 @@
     color:var(--muted);
     font-size:10px;
     display:flex;
-    justify-content:space-between;
+    justify-content:flex-end; /* hide left text visually */
     align-items:center;
     gap:10px;
     flex-wrap:wrap;
   }
+
+  /* HIDE the left reset text completely */
+  #footLeft{ display:none !important; }
 
   .btn{
     font-family:var(--mono);
@@ -323,7 +326,7 @@
     </div>
 
     <div class="footer">
-      <div id="footLeft"></div><!-- hidden text -->
+      <div id="footLeft"></div>
       <button class="btn" id="resetBtn" type="button">Reset</button>
     </div>
   </div>
@@ -337,9 +340,7 @@
       id: "lock",
       color: "#FF4D6D",
       title: "NO-TRADE LOCK (POST-KILLZONE)",
-      items: [
-        { id:"lock_on", text:"Trading locked", meta:"1" }
-      ],
+      items: [{ id:"lock_on", text:"Trading locked", meta:"1" }],
       collapsedDefault: true
     },
     {
@@ -383,7 +384,6 @@
 
   const root = document.getElementById("root");
   const topChip = document.getElementById("topChip");
-  const footLeft = document.getElementById("footLeft");
   const resetBtn = document.getElementById("resetBtn");
 
   // ---- Time helpers (ET) ----
@@ -420,71 +420,129 @@
     return wd === "Sat" || wd === "Sun";
   }
 
-  // ---- Storage keys ----
-  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
-  function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }
+  // ---- Robust storage (localStorage -> IndexedDB -> memory) ----
+  const memStore = new Map();
 
-  // ---- Cookie backup (fixes Notion iPhone resets) ----
-  function setCookie(name, value, days=30){
+  function canUseLocalStorage(){
     try{
-      const expires = new Date(Date.now() + days*864e5).toUTCString();
-      document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-    }catch{}
-  }
-  function getCookie(name){
-    try{
-      const key = encodeURIComponent(name) + "=";
-      const parts = document.cookie.split("; ");
-      for(const p of parts){
-        if(p.indexOf(key) === 0) return decodeURIComponent(p.substring(key.length));
-      }
-    }catch{}
-    return null;
+      const k="__t"; localStorage.setItem(k,"1"); localStorage.removeItem(k);
+      return true;
+    }catch{ return false; }
   }
 
-  function safeRead(key, fallback){
-    // 1) try localStorage
+  const LS_OK = canUseLocalStorage();
+
+  // IndexedDB tiny helper
+  const IDB_DB = "crtv_checklist_db";
+  const IDB_STORE = "kv";
+
+  function idbOpen(){
+    return new Promise((resolve, reject)=>{
+      if(!("indexedDB" in window)) return resolve(null);
+      const req = indexedDB.open(IDB_DB, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  async function idbGet(db, key){
+    if(!db) return null;
+    return new Promise((resolve)=>{
+      const tx = db.transaction(IDB_STORE, "readonly");
+      const st = tx.objectStore(IDB_STORE);
+      const r = st.get(key);
+      r.onsuccess = ()=> resolve(r.result ?? null);
+      r.onerror = ()=> resolve(null);
+    });
+  }
+
+  async function idbSet(db, key, val){
+    if(!db) return false;
+    return new Promise((resolve)=>{
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      const st = tx.objectStore(IDB_STORE);
+      const r = st.put(val, key);
+      r.onsuccess = ()=> resolve(true);
+      r.onerror = ()=> resolve(false);
+    });
+  }
+
+  async function idbDel(db, key){
+    if(!db) return false;
+    return new Promise((resolve)=>{
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      const st = tx.objectStore(IDB_STORE);
+      const r = st.delete(key);
+      r.onsuccess = ()=> resolve(true);
+      r.onerror = ()=> resolve(false);
+    });
+  }
+
+  let idbDbPromise = idbOpen();
+
+  // Unified JSON storage
+  async function storeGet(key, fallback){
+    // 1) localStorage
+    if(LS_OK){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch{}
+    }
+    // 2) IndexedDB
     try{
-      const raw = localStorage.getItem(key);
-      if(raw) return JSON.parse(raw);
+      const db = await idbDbPromise;
+      const raw = await idbGet(db, key);
+      return raw ? JSON.parse(raw) : fallback;
     }catch{}
-    // 2) fallback to cookie
+    // 3) memory
     try{
-      const c = getCookie(key);
-      if(c){
-        const parsed = JSON.parse(c);
-        // repopulate localStorage if possible
-        try{ localStorage.setItem(key, JSON.stringify(parsed)); }catch{}
-        return parsed;
-      }
+      const raw = memStore.get(key);
+      return raw ? JSON.parse(raw) : fallback;
     }catch{}
     return fallback;
   }
 
-  function safeWrite(key, val){
-    const s = JSON.stringify(val);
-    // write localStorage
-    try{ localStorage.setItem(key, s); }catch{}
-    // write cookie backup
-    setCookie(key, s, 30);
+  async function storeSet(key, val){
+    const raw = JSON.stringify(val);
+    // 1) localStorage
+    if(LS_OK){
+      try{ localStorage.setItem(key, raw); return; }catch{}
+    }
+    // 2) IndexedDB
+    try{
+      const db = await idbDbPromise;
+      const ok = await idbSet(db, key, raw);
+      if(ok) return;
+    }catch{}
+    // 3) memory
+    memStore.set(key, raw);
   }
 
-  function safeRemove(key){
-    try{ localStorage.removeItem(key); }catch{}
-    // remove cookie
-    setCookie(key, "", -1);
+  async function storeDel(key){
+    if(LS_OK){
+      try{ localStorage.removeItem(key); }catch{}
+    }
+    try{
+      const db = await idbDbPromise;
+      await idbDel(db, key);
+    }catch{}
+    memStore.delete(key);
   }
 
-  function loadDayState(){ return safeRead(dayKey(), {}); }
-  function saveDayState(state){ safeWrite(dayKey(), state); }
+  // ---- Storage keys based on ET day ----
+  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
+  function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }
+  const stampKey = "chk_last_seen_day_et";
 
-  function loadCollapsed(){ return safeRead(collapsedKey(), {}); }
-  function saveCollapsed(map){ safeWrite(collapsedKey(), map); }
-
-  // ---- Glow logic (ET) ----
-  const PRE_OPEN  = 8*60 + 30;  // 8:30
-  const KZ_OPEN   = 9*60 + 30;  // 9:30
-  const KZ_CLOSE  = 11*60;      // 11:00
+  // ---- Glow timing (ET) ----
+  const PRE_OPEN  = 8*60 + 30;
+  const KZ_OPEN   = 9*60 + 30;
+  const KZ_CLOSE  = 11*60;
 
   function isBetween(now, start, end){
     return now >= start && now < end;
@@ -496,14 +554,38 @@
     return g.items.every(it => !!state[it.id]);
   }
 
-  // ---- Render weekday UI ----
-  function renderWeekday(){
-    topChip.textContent = "Checklist";
-    footLeft.textContent = ""; // requested: don't display the auto reset text
-    resetBtn.style.display = "inline-flex";
+  function hexToRgba(hex, a){
+    const c = hex.replace("#","").trim();
+    const r = parseInt(c.substring(0,2),16);
+    const g = parseInt(c.substring(2,4),16);
+    const b = parseInt(c.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
 
-    const state = loadDayState();
-    const collapsedMap = loadCollapsed();
+  async function ensureDailyReset(){
+    // This guarantees: only resets when ET day changes,
+    // not when Notion closes.
+    const today = ymd(TZ);
+    const last = await storeGet(stampKey, null);
+
+    if(last !== today){
+      // new ET day → naturally new key, but also clear any stray memory-only state
+      await storeSet(stampKey, today);
+    }
+  }
+
+  async function loadDayState(){ return await storeGet(dayKey(), {}); }
+  async function saveDayState(state){ await storeSet(dayKey(), state); }
+
+  async function loadCollapsed(){ return await storeGet(collapsedKey(), {}); }
+  async function saveCollapsed(map){ await storeSet(collapsedKey(), map); }
+
+  // ---- Render weekday UI ----
+  async function renderWeekday(){
+    topChip.textContent = "Checklist";
+
+    const state = await loadDayState();
+    const collapsedMap = await loadCollapsed();
     const now = minsInTZ(TZ);
 
     const wrap = document.createElement("div");
@@ -523,35 +605,37 @@
           : !!g.collapsedDefault;
       if(isCollapsed) group.classList.add("collapsed");
 
-      // ===== apply glow rules =====
+      // glow rules
       if(g.id === "lock"){
         const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
         if(shouldGlow){
           group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
         }
       }
-
       if(g.id === "premkt"){
         const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
         if(shouldGlow){
           group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
         }
       }
-
       if(g.id === "killzone"){
         const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
         if(shouldGlow){
           group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
         }
       }
-
       if(g.id === "post"){
         const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
         if(shouldGlow){
           group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
         }
       }
 
+      // head
       const head = document.createElement("div");
       head.className = "groupHead";
 
@@ -600,11 +684,11 @@
       toggle.setAttribute("aria-label", "Toggle group");
       toggle.innerHTML = `<div class="chev"></div>`;
 
-      toggle.addEventListener("click", () => {
+      toggle.addEventListener("click", async () => {
         const nowCollapsed = !group.classList.contains("collapsed");
         group.classList.toggle("collapsed", nowCollapsed);
         collapsedMap[g.id] = nowCollapsed;
-        saveCollapsed(collapsedMap);
+        await saveCollapsed(collapsedMap);
       });
 
       right.appendChild(count);
@@ -613,6 +697,7 @@
       head.appendChild(left);
       head.appendChild(right);
 
+      // body
       const body = document.createElement("div");
       body.className = "groupBody";
 
@@ -634,16 +719,16 @@
         `;
         row.querySelector(".txt").textContent = it.text;
 
-        row.querySelector(".check").addEventListener("click", () => {
+        row.querySelector(".check").addEventListener("click", async () => {
           state[it.id] = !state[it.id];
-          saveDayState(state);
+          await saveDayState(state);
 
           row.classList.remove("burst");
           void row.offsetWidth;
           row.classList.add("burst");
           setTimeout(() => row.classList.remove("burst"), 1500);
 
-          render();
+          await render(); // re-render for counts + glow rules
         });
 
         list.appendChild(row);
@@ -661,8 +746,6 @@
 
   function renderWeekend(){
     topChip.textContent = "Weekend";
-    footLeft.textContent = "";
-    resetBtn.style.display = "none";
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -689,39 +772,23 @@
     root.appendChild(card);
   }
 
-  // ---- Auto reset after day ends (ET) ----
-  // This already resets at ET midnight because dayKey() changes by date.
-  let lastDay = ymd(TZ);
-
-  function render(){
-    const today = ymd(TZ);
-    if(today !== lastDay){
-      lastDay = today;
-      // no visible message; new day simply starts with empty state for that dayKey
-    }
-
+  async function render(){
+    await ensureDailyReset(); // ET-based, silent
     if(isWeekend(TZ)) renderWeekend();
-    else renderWeekday();
+    else await renderWeekday();
   }
 
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    safeRemove(dayKey());
-    safeRemove(collapsedKey());
-    render();
+  resetBtn.addEventListener("click", async () => {
+    await storeDel(dayKey());
+    await storeDel(collapsedKey());
+    await render();
   });
 
+  // Initial render
   render();
 
-  // Keep timing accurate + detect ET midnight while open
+  // Keep glow timing accurate + midnight detection
   setInterval(render, 15000);
-
-  function hexToRgba(hex, a){
-    const c = hex.replace("#","").trim();
-    const r = parseInt(c.substring(0,2),16);
-    const g = parseInt(c.substring(2,4),16);
-    const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
 </script>
 </body>
 </html>
