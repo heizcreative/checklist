@@ -11,8 +11,8 @@
     --text:rgba(255,255,255,.92);
     --muted:rgba(255,255,255,.62);
 
-    --stroke:rgba(255,255,255,.10);
     --panelStroke:rgba(255,255,255,.08);
+    --stroke:rgba(255,255,255,.10);
 
     --good:#28E6A5;
     --bad:#FF4D6D;
@@ -29,13 +29,14 @@
     background:var(--bg)!important;
   }
 
+  /* COMPACT BASE (smaller overall) */
   body{
     color:var(--text);
     font-family:var(--sans);
-    padding:12px;
+    padding:8px; /* smaller */
   }
 
-  .wrap{ width:min(980px,100%); margin:0 auto; }
+  .wrap{ width:100%; margin:0 auto; }
 
   .panel{
     background:var(--bg);
@@ -44,42 +45,30 @@
     overflow:hidden;
   }
 
-  /* Header = centered chip (same vibe as your sessions) */
   .header{
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:10px;
+    padding:8px; /* smaller */
     border-bottom:1px solid rgba(255,255,255,.07);
   }
 
   .chip{
     font-family:var(--mono);
-    font-size:12px;
+    font-size:11px; /* smaller */
     color:rgba(255,255,255,.88);
-    padding:7px 14px;
+    padding:6px 12px; /* smaller */
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:140px;
+    min-width:118px; /* smaller */
     text-align:center;
   }
 
-  .content{ padding:12px; }
+  .content{ padding:8px; } /* smaller */
 
-  /* Cards */
-  .card{
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:14px;
-    padding:12px;
-    background:rgba(255,255,255,.05);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-  }
-
-  /* Group list */
-  .groups{ display:flex; flex-direction:column; gap:10px; }
+  .groups{ display:flex; flex-direction:column; gap:8px; } /* smaller gap */
 
   .group{
     border:1px solid rgba(255,255,255,.10);
@@ -93,7 +82,8 @@
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:10px 10px;
+    padding:8px 8px; /* smaller */
+    position:relative;
   }
 
   .headLeft{
@@ -107,22 +97,22 @@
     display:inline-flex;
     align-items:center;
     gap:8px;
-    padding:6px 10px;
+    padding:5px 9px; /* smaller */
     border-radius:999px;
     font-family:var(--mono);
-    font-size:11px;
+    font-size:10px; /* smaller */
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     white-space:nowrap;
   }
 
   .badgeDot{
-    width:9px;height:9px;border-radius:50%;
+    width:8px;height:8px;border-radius:50%;
     box-shadow:0 0 0 4px rgba(255,255,255,.08);
   }
 
   .groupTitle{
-    font-size:13px;
+    font-size:12px; /* smaller */
     font-weight:800;
     letter-spacing:.2px;
     white-space:nowrap;
@@ -130,27 +120,33 @@
     text-overflow:ellipsis;
   }
 
+  .sub{
+    font-size:10px; /* smaller */
+    color:rgba(255,255,255,.62);
+    margin-top:2px;
+  }
+
   .headRight{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:8px; /* smaller */
   }
 
   .countPill{
     font-family:var(--mono);
-    font-size:11px;
-    padding:6px 10px;
+    font-size:10px; /* smaller */
+    padding:5px 9px; /* smaller */
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     color:rgba(255,255,255,.78);
     white-space:nowrap;
-    min-width:64px;
+    min-width:54px; /* smaller */
     text-align:center;
   }
 
   .toggleBtn{
-    width:32px;height:32px;
+    width:30px;height:30px; /* smaller */
     border-radius:10px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
@@ -169,13 +165,11 @@
     transition:transform 220ms ease;
   }
 
-  /* Collapsible content */
   .groupBody{
     border-top:1px solid rgba(255,255,255,.08);
-    padding:10px;
+    padding:8px; /* smaller */
     overflow:hidden;
 
-    /* smooth collapse */
     max-height:1000px;
     transition:max-height 260ms ease, padding 260ms ease, opacity 220ms ease;
     opacity:1;
@@ -188,22 +182,20 @@
     opacity:0;
   }
 
-  .collapsed .chev{
-    transform:rotate(-45deg);
-  }
+  .collapsed .chev{ transform:rotate(-45deg); }
 
-  /* Checklist items */
-  .items{ display:flex; flex-direction:column; gap:10px; }
+  .items{ display:flex; flex-direction:column; gap:8px; } /* smaller */
 
   .item{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:10px;
+    padding:8px; /* smaller */
     border-radius:12px;
     border:1px solid rgba(255,255,255,.08);
     background:rgba(0,0,0,.10);
+    position:relative;
   }
 
   .itemLeft{
@@ -214,8 +206,8 @@
   }
 
   .check{
-    width:22px;height:22px;
-    border-radius:8px;
+    width:20px;height:20px; /* smaller */
+    border-radius:7px;
     border:1px solid rgba(255,255,255,.16);
     background:rgba(0,0,0,.18);
     display:grid;
@@ -223,11 +215,13 @@
     cursor:pointer;
     flex:0 0 auto;
     transition:transform 160ms ease,border-color 200ms ease,background 200ms ease,box-shadow 200ms ease;
+    position:relative;
+    overflow:visible;
   }
   .check:active{ transform:scale(.96); }
 
   .tick{
-    width:10px;height:6px;
+    width:9px;height:6px;
     border-left:2px solid transparent;
     border-bottom:2px solid transparent;
     transform:rotate(-45deg);
@@ -236,7 +230,7 @@
   }
 
   .txt{
-    font-size:12px;
+    font-size:11px; /* smaller */
     color:rgba(255,255,255,.88);
     white-space:nowrap;
     overflow:hidden;
@@ -246,12 +240,11 @@
 
   .meta{
     font-family:var(--mono);
-    font-size:11px;
+    font-size:10px; /* smaller */
     color:var(--muted);
     white-space:nowrap;
   }
 
-  /* Checked animation */
   .done .check{
     background:rgba(40,230,165,.12);
     border-color:rgba(40,230,165,.35);
@@ -270,12 +263,20 @@
     text-decoration-color:rgba(255,255,255,.24);
   }
 
-  /* Footer */
+  /* ✅ 1.5s checkbox glow burst */
+  @keyframes checkBurst {
+    0%   { box-shadow: 0 0 0 0 rgba(40,230,165,.0), 0 0 0 0 rgba(40,230,165,.0); }
+    20%  { box-shadow: 0 0 0 6px rgba(40,230,165,.14), 0 0 18px rgba(40,230,165,.22); }
+    60%  { box-shadow: 0 0 0 10px rgba(40,230,165,.08), 0 0 24px rgba(40,230,165,.14); }
+    100% { box-shadow: 0 0 0 0 rgba(40,230,165,.0), 0 0 0 rgba(40,230,165,.0); }
+  }
+  .burst .check{ animation: checkBurst 1.5s ease-out; }
+
   .footer{
-    padding:10px 12px 12px;
+    padding:8px 10px 10px; /* smaller */
     border-top:1px solid rgba(255,255,255,.07);
     color:var(--muted);
-    font-size:11px;
+    font-size:10px; /* smaller */
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -285,7 +286,7 @@
 
   .btn{
     font-family:var(--mono);
-    font-size:11px;
+    font-size:10px;
     padding:6px 10px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
@@ -294,82 +295,47 @@
     cursor:pointer;
   }
 
-  /* Weekend progress card (like your last image) */
-  .weekendCard{
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:16px;
-    padding:14px;
-    background:rgba(255,255,255,.05);
+  /* ====== SECTION PULSE GLOW ====== */
+  @keyframes sectionPulse {
+    0%   { box-shadow: 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
+    50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10), 0 0 26px rgba(40,230,165,.14); }
+    100% { box-shadow: 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
   }
 
-  .wcTop{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:10px;
+  /* applied to group container (soft) */
+  .pulseGlow{
+    animation: sectionPulse 1.8s ease-in-out infinite;
   }
 
-  .wcTitle{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
+  /* Make pulse color adjustable by CSS variable on the group */
+  .pulseGlow{
+    box-shadow: 0 0 0 rgba(40,230,165,0);
+  }
+  .pulseGlow{ --pulse: rgba(40,230,165,.14); }
+  .pulseGlow{ animation: sectionPulseVar 1.8s ease-in-out infinite; }
+
+  @keyframes sectionPulseVar {
+    0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
+    50%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pulse) 70%, transparent),
+                    0 0 26px color-mix(in srgb, var(--pulse) 55%, transparent); }
+    100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
   }
 
-  .wcTitle b{
-    font-size:13px;
-    letter-spacing:.2px;
-  }
-
-  .wcTitle span{
-    font-size:11px;
-    color:var(--muted);
-  }
-
-  .pct{
-    font-family:var(--mono);
-    font-size:36px;
-    letter-spacing:.6px;
-    margin:6px 0 10px;
-  }
-
-  .barWrap{
-    height:14px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(0,0,0,.20);
-    overflow:hidden;
-  }
-
-  .bar{
-    height:100%;
-    width:0%;
-    border-radius:999px;
-    background:linear-gradient(90deg, rgba(120,255,120,.95), rgba(40,230,165,.95));
-    box-shadow:0 0 22px rgba(40,230,165,.25);
-    transition:width 520ms cubic-bezier(.2,.9,.2,1);
-  }
-
-  .wcBottom{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    margin-top:10px;
-    color:var(--muted);
-    font-size:11px;
-    flex-wrap:wrap;
+  /* Fallback for browsers without color-mix */
+  @supports not (color: color-mix(in srgb, white 50%, black)) {
+    @keyframes sectionPulseVar {
+      0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
+      50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10),
+                      0 0 26px rgba(40,230,165,.14); }
+      100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
+    }
   }
 
   /* Mobile compact */
   @media (max-width: 430px){
     body{ padding:6px; }
     .content{ padding:8px; }
-    .chip{ font-size:11px; padding:6px 12px; min-width:130px; }
-    .groupHead{ padding:9px; }
-    .groupBody{ padding:9px; }
-    .item{ padding:9px; }
-    .txt{ font-size:11px; }
-    .countPill{ min-width:58px; padding:6px 9px; }
+    .chip{ font-size:11px; padding:6px 12px; min-width:120px; }
   }
 </style>
 </head>
@@ -386,7 +352,7 @@
     </div>
 
     <div class="footer">
-      <div id="footLeft">Resets every weekday</div>
+      <div id="footLeft">Auto reset daily (ET)</div>
       <button class="btn" id="resetBtn" type="button">Reset</button>
     </div>
   </div>
@@ -395,14 +361,14 @@
 <script>
   const TZ = "America/Toronto";
 
-  // Weekday grouped checklist (like your screenshots)
+  // Your groups (same as before)
   const WEEKDAY_GROUPS = [
     {
       id: "lock",
       color: "#FF4D6D",
       title: "NO-TRADE LOCK (POST-KILLZONE)",
       items: [
-        { id:"lock_on", text:"Trading locked", meta:"1/1" }
+        { id:"lock_on", text:"Trading locked", meta:"1" }
       ],
       collapsedDefault: true
     },
@@ -445,16 +411,26 @@
     }
   ];
 
-  // Weekend progress = weekly completion (Mon–Fri) shown like your last image
-  const WEEKEND_GOAL_TITLE = "Weekly Progress";
-  const WEEKEND_SUBTITLE   = "Checklist completion (Mon–Fri)";
-
   const root = document.getElementById("root");
   const topChip = document.getElementById("topChip");
   const footLeft = document.getElementById("footLeft");
   const resetBtn = document.getElementById("resetBtn");
 
-  // ---- Date helpers (DST safe) ----
+  // ---- Time helpers (ET) ----
+  function getHMInTZ(tz, d=new Date()){
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz,
+      hour12:false,
+      hour:"2-digit",
+      minute:"2-digit"
+    }).formatToParts(d);
+    const get = (t)=>parts.find(p=>p.type===t)?.value ?? "00";
+    return { hh: get("hour"), mm: get("minute") };
+  }
+  function minsInTZ(tz){
+    const p = getHMInTZ(tz);
+    return Number(p.hh)*60 + Number(p.mm);
+  }
   function fmtParts(tz, d=new Date()){
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
@@ -474,20 +450,9 @@
     return wd === "Sat" || wd === "Sun";
   }
 
-  // Monday date key for current week (ET)
-  function mondayKeyOfThisWeek(){
-    const now = new Date();
-    // We will step back day-by-day until Mon in ET
-    for(let i=0; i<7; i++){
-      const probe = new Date(now.getTime() - i*86400000);
-      if(weekdayShort(TZ, probe) === "Mon") return ymd(TZ, probe);
-    }
-    return ymd(TZ, now);
-  }
-
-  // Storage keys
-  function dayKey(){ return `chk_day_${ymd(TZ)}`; }              // today state
-  function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }  // per-day collapsed states
+  // ---- Storage keys ----
+  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
+  function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }
 
   function safeRead(key, fallback){
     try{
@@ -499,48 +464,39 @@
     localStorage.setItem(key, JSON.stringify(val));
   }
 
-  // Total items per weekday day (for weekly percent)
-  const ITEMS_PER_DAY = WEEKDAY_GROUPS.reduce((a,g)=>a + g.items.length, 0);
+  function loadDayState(){ return safeRead(dayKey(), {}); }
+  function saveDayState(state){ safeWrite(dayKey(), state); }
 
-  function loadDayState(){
-    return safeRead(dayKey(), {});
-  }
-  function saveDayState(state){
-    safeWrite(dayKey(), state);
-  }
-  function loadCollapsed(){
-    return safeRead(collapsedKey(), {});
-  }
-  function saveCollapsed(map){
-    safeWrite(collapsedKey(), map);
-  }
+  function loadCollapsed(){ return safeRead(collapsedKey(), {}); }
+  function saveCollapsed(map){ safeWrite(collapsedKey(), map); }
 
-  // Mark daily completion count (for weekend weekly progress)
-  function stampDailyCompletion(){
-    // store completion count for each weekday day under week bucket
-    const weekMon = mondayKeyOfThisWeek();
-    const wkKey = `chk_week_${weekMon}`;
-    const bucket = safeRead(wkKey, {});
-    const today = ymd(TZ);
-    const state = loadDayState();
+  // ---- Glow logic (ET) ----
+  // Pre-market: 8:30 → 9:30
+  // Killzone:   9:30 → 11:00
+  const PRE_OPEN  = 8*60 + 30;
+  const KZ_OPEN   = 9*60 + 30;
+  const KZ_CLOSE  = 11*60;
 
-    let done = 0;
-    for(const g of WEEKDAY_GROUPS){
-      for(const it of g.items){
-        if(state[it.id]) done++;
-      }
-    }
-    bucket[today] = done;
-    safeWrite(wkKey, bucket);
+  function isBetween(now, start, end){
+    return now >= start && now < end;
   }
 
+  // Post-trade review glows after 11:00 until all items in "post" are checked
+  function postAllChecked(state){
+    const g = WEEKDAY_GROUPS.find(x=>x.id==="post");
+    if(!g) return true;
+    return g.items.every(it => !!state[it.id]);
+  }
+
+  // ---- Render weekday UI ----
   function renderWeekday(){
     topChip.textContent = "Checklist";
-    footLeft.textContent = "Resets every weekday";
+    footLeft.textContent = "Auto reset daily (ET)";
     resetBtn.style.display = "inline-flex";
 
     const state = loadDayState();
     const collapsedMap = loadCollapsed();
+    const now = minsInTZ(TZ);
 
     const wrap = document.createElement("div");
     wrap.className = "groups";
@@ -551,14 +507,53 @@
 
       const group = document.createElement("div");
       group.className = "group";
+      group.dataset.gid = g.id;
 
+      // collapse state
       const isCollapsed =
         (collapsedMap[g.id] !== undefined)
           ? collapsedMap[g.id]
           : !!g.collapsedDefault;
-
       if(isCollapsed) group.classList.add("collapsed");
 
+      // ===== apply glow rules =====
+      // NO-TRADE LOCK pulses when NOT in killzone (before 9:30 OR after 11:00)
+      if(g.id === "lock"){
+        const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
+        if(shouldGlow){
+          group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
+        }
+      }
+
+      // NY PRE-MARKET pulses 8:30 → 9:30, stops at 9:30
+      if(g.id === "premkt"){
+        const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
+        if(shouldGlow){
+          group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
+        }
+      }
+
+      // NY KILLZONE pulses 9:30 → 11:00, stops at 11:00
+      if(g.id === "killzone"){
+        const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
+        if(shouldGlow){
+          group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
+        }
+      }
+
+      // ICT POST-TRADE REVIEW pulses after 11:00 until all checked
+      if(g.id === "post"){
+        const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
+        if(shouldGlow){
+          group.classList.add("pulseGlow");
+          group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
+        }
+      }
+
+      // ===== head =====
       const head = document.createElement("div");
       head.className = "groupHead";
 
@@ -567,35 +562,32 @@
 
       const badge = document.createElement("div");
       badge.className = "badge";
-      badge.style.borderColor = "rgba(255,255,255,.12)";
-      badge.style.background = "rgba(0,0,0,.18)";
 
       const dot = document.createElement("div");
       dot.className = "badgeDot";
       dot.style.background = g.color;
       dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
 
-      const title = document.createElement("div");
-      title.style.minWidth = "0";
+      badge.appendChild(dot);
+      left.appendChild(badge);
+
+      const titleWrap = document.createElement("div");
+      titleWrap.style.minWidth = "0";
 
       const titleLine = document.createElement("div");
       titleLine.className = "groupTitle";
       titleLine.textContent = g.title;
 
-      const subtitle = document.createElement("div");
-      subtitle.style.fontSize = "11px";
-      subtitle.style.color = "rgba(255,255,255,.62)";
-      subtitle.style.marginTop = "2px";
-      subtitle.textContent = g.subtitle || "";
+      titleWrap.appendChild(titleLine);
 
-      badge.appendChild(dot);
-      badge.appendChild(document.createTextNode(" "));
-      // keep badge minimal, the main title is beside it
-      left.appendChild(badge);
+      if(g.subtitle){
+        const sub = document.createElement("div");
+        sub.className = "sub";
+        sub.textContent = g.subtitle;
+        titleWrap.appendChild(sub);
+      }
 
-      title.appendChild(titleLine);
-      if(g.subtitle) title.appendChild(subtitle);
-      left.appendChild(title);
+      left.appendChild(titleWrap);
 
       const right = document.createElement("div");
       right.className = "headRight";
@@ -623,6 +615,7 @@
       head.appendChild(left);
       head.appendChild(right);
 
+      // ===== body =====
       const body = document.createElement("div");
       body.className = "groupBody";
 
@@ -642,17 +635,19 @@
           </div>
           <div class="meta">${it.meta || ""}</div>
         `;
-
         row.querySelector(".txt").textContent = it.text;
 
         row.querySelector(".check").addEventListener("click", () => {
           state[it.id] = !state[it.id];
           saveDayState(state);
 
-          // update weekly bucket so weekend progress is ready
-          stampDailyCompletion();
+          // checkbox burst animation (1.5s)
+          row.classList.remove("burst");
+          void row.offsetWidth; // restart animation
+          row.classList.add("burst");
+          setTimeout(() => row.classList.remove("burst"), 1500);
 
-          // re-render keeps everything consistent + the counts
+          // re-render to update counts + glow rules
           render();
         });
 
@@ -667,83 +662,64 @@
 
     root.innerHTML = "";
     root.appendChild(wrap);
-
-    // update daily stamp at least once per render
-    stampDailyCompletion();
   }
 
+  // ---- Weekend view (kept simple/minimal here) ----
   function renderWeekend(){
     topChip.textContent = "Weekend";
-    footLeft.textContent = "Weekend = review + progress";
+    footLeft.textContent = "Weekend mode";
     resetBtn.style.display = "none";
 
-    const weekMon = mondayKeyOfThisWeek();
-    const wkKey = `chk_week_${weekMon}`;
-    const bucket = safeRead(wkKey, {});
-
-    // compute weekly percent using Mon–Fri (5 days)
-    // We calculate total possible = ITEMS_PER_DAY * 5
-    const totalPossible = ITEMS_PER_DAY * 5;
-
-    let totalDone = 0;
-    // sum whatever days exist in bucket (usually Mon–Fri)
-    for(const k in bucket){
-      totalDone += Number(bucket[k] || 0);
-    }
-
-    const pct = totalPossible ? Math.min(100, Math.round((totalDone / totalPossible) * 100)) : 0;
-
     const card = document.createElement("div");
-    card.className = "weekendCard";
+    card.style.border = "1px solid rgba(255,255,255,.10)";
+    card.style.borderRadius = "14px";
+    card.style.padding = "12px";
+    card.style.background = "rgba(255,255,255,.05)";
 
     card.innerHTML = `
-      <div class="wcTop">
-        <div class="wcTitle">
-          <b>${WEEKEND_GOAL_TITLE}</b>
-          <span>${WEEKEND_SUBTITLE}</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.2px;">Weekend Review</div>
+          <div style="margin-top:4px;color:rgba(255,255,255,.62);font-size:10px;">Plan + improve for next week</div>
         </div>
-        <div class="countPill">${pct}%</div>
+        <div class="countPill">OFF</div>
       </div>
-
-      <div class="pct">${pct}%</div>
-
-      <div class="barWrap">
-        <div class="bar" id="wkBar"></div>
-      </div>
-
-      <div class="wcBottom">
-        <div>Week starts: <span class="pill">${weekMon}</span></div>
-        <div>Target: <span class="pill">5 days</span></div>
+      <div style="margin-top:10px;color:rgba(255,255,255,.78);font-size:11px;line-height:1.35;">
+        • 1 best trade + why it worked<br/>
+        • 1 biggest mistake + fix rule<br/>
+        • Backtest goal (20 charts)
       </div>
     `;
 
     root.innerHTML = "";
     root.appendChild(card);
-
-    // animate bar after paint
-    requestAnimationFrame(() => {
-      const bar = document.getElementById("wkBar");
-      if(bar) bar.style.width = pct + "%";
-    });
   }
 
+  // ---- Auto reset after day ends (ET) ----
+  let lastDay = ymd(TZ);
+
   function render(){
+    const today = ymd(TZ);
+    if(today !== lastDay){
+      // new day: UI will automatically use a new storage key
+      lastDay = today;
+    }
+
     if(isWeekend(TZ)) renderWeekend();
     else renderWeekday();
   }
 
-  // Manual reset (only for weekdays, today only)
   document.getElementById("resetBtn").addEventListener("click", () => {
     localStorage.removeItem(dayKey());
     localStorage.removeItem(collapsedKey());
     render();
   });
 
-  // Re-render every minute so it flips into weekend mode automatically, and resets per new day key
   render();
-  setInterval(render, 60000);
 
-  // helper: hex to rgba
+  // Keep glow timing accurate + detect midnight ET
+  setInterval(render, 15000);
+
   function hexToRgba(hex, a){
     const c = hex.replace("#","").trim();
     const r = parseInt(c.substring(0,2),16);
