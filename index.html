@@ -94,6 +94,7 @@
     cursor:pointer;
     text-align:left;
     min-width:0;
+    transition: box-shadow 200ms ease, border-color 200ms ease;
   }
 
   .selLeft{
@@ -129,10 +130,10 @@
     flex:0 0 auto;
   }
 
-  /* active glow ONLY on the top pills (no lines) */
+  /* ACTIVE: small outline glow (NOT big glow) */
   .selBtn.active{
     border-color: rgba(255,255,255,.14);
-    box-shadow: 0 0 0 2px rgba(255,255,255,.03), 0 0 0 6px var(--glow, rgba(255,255,255,.06));
+    box-shadow: 0 0 0 2px var(--glow, rgba(255,255,255,.08));
   }
 
   /* --- MAIN GROUP CARD --- */
@@ -149,8 +150,9 @@
     justify-content:space-between;
     gap:10px;
     padding:10px;
-    /* IMPORTANT: no “growing line” under the title */
-    border-bottom:1px solid rgba(255,255,255,.08);
+    /* REMOVED the line under title completely */
+    border-bottom:none;
+    transition: box-shadow 200ms ease, border-color 200ms ease;
   }
 
   .headLeft{
@@ -198,9 +200,9 @@
     flex:0 0 auto;
   }
 
-  /* glow ONLY around the header box, not items */
+  /* glow ONLY as a small outline around the HEADER (no bar/line) */
   .group.glow .groupHead{
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,.03), 0 0 0 6px var(--glow, rgba(255,255,255,.06));
+    box-shadow: 0 0 0 2px var(--glow, rgba(255,255,255,.08));
   }
 
   .groupBody{
@@ -394,7 +396,7 @@
 
     const get = (t)=>parts.find(p=>p.type===t)?.value;
     return {
-      wd: get("weekday"), // Mon/Tue/...
+      wd: get("weekday"),
       hh: get("hour"),
       mm: get("minute")
     };
@@ -417,19 +419,15 @@
   function isMarketWeekend(){
     const p = dtParts(TZ);
     const now = Number(p.hh)*60 + Number(p.mm);
-    const wd = p.wd; // "Fri", "Sat", "Sun", ...
+    const wd = p.wd;
 
     if(wd === "Sat") return true;
-    if(wd === "Sun") return now < (18*60);         // before 6pm
-    if(wd === "Fri") return now >= (18*60);        // from 6pm
+    if(wd === "Sun") return now < (18*60);
+    if(wd === "Fri") return now >= (18*60);
     return false;
   }
 
-  // Auto selection windows (ET):
-  // Lock: 20:00 → 08:30
-  // Pre : 08:30 → 09:30
-  // KZ  : 09:30 → 11:00
-  // Post: 11:00 → 20:00
+  // Auto selection windows (ET)
   function autoGroupId(){
     const now = minsInTZ(TZ);
     const t0830 = 8*60 + 30;
@@ -437,7 +435,6 @@
     const t1100 = 11*60;
     const t2000 = 20*60;
 
-    // Lock spans overnight
     if(now >= t2000 || now < t0830) return "lock";
     if(now >= t0830 && now < t0930) return "pre";
     if(now >= t0930 && now < t1100) return "kz";
@@ -469,17 +466,15 @@
     try{ localStorage.removeItem(key); }catch{}
   }
 
-  // keys based on ET day
   const stampKey = "chk_last_seen_day_et";
   function dayKey(){ return `chk_day_${ymd(TZ)}`; }
-  function uiKey(){ return `chk_ui_${ymd(TZ)}`; } // selected tab per day
+  function uiKey(){ return `chk_ui_${ymd(TZ)}`; }
 
   function ensureDailyReset(){
     const today = ymd(TZ);
     const last = storeGet(stampKey, null);
     if(last !== today){
       storeSet(stampKey, today);
-      // new day: keep fresh keys automatically; nothing else required
     }
   }
 
@@ -490,12 +485,11 @@
   function saveUI(ui){ storeSet(uiKey(), ui); }
 
   function hexToGlow(hex){
-    // soft glow, same vibe as your sessions
     const c = hex.replace("#","").trim();
     const r = parseInt(c.substring(0,2),16);
     const g = parseInt(c.substring(2,4),16);
     const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},.16)`;
+    return `rgba(${r},${g},${b},.18)`;
   }
 
   function countDone(state, group){
@@ -505,7 +499,8 @@
   }
 
   function renderWeekend(){
-    topChip.textContent = `ET ${dtParts(TZ).hh}:${dtParts(TZ).mm} • Weekend`;
+    const p = dtParts(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Weekend`;
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -541,9 +536,6 @@
 
     const auto = autoGroupId();
 
-    // auto-switch ONLY if user hasn't manually picked something recently
-    // rule: if ui.selected is null OR ui.lastAuto !== auto -> switch to auto,
-    // but if user selected manually, keep it until time window changes to a new one.
     let selected = ui.selected;
     if(!selected){
       selected = auto;
@@ -552,7 +544,6 @@
       saveUI(ui);
     }else{
       if(ui.lastAuto !== auto){
-        // time window changed -> follow time automatically
         selected = auto;
         ui.selected = auto;
         ui.lastAuto = auto;
@@ -562,7 +553,6 @@
 
     const wrap = document.createElement("div");
 
-    // top selector
     const selector = document.createElement("div");
     selector.className = "selector";
 
@@ -585,7 +575,7 @@
 
       b.addEventListener("click", () => {
         const ui2 = loadUI();
-        ui2.selected = g.id; // manual select allowed anytime
+        ui2.selected = g.id;
         saveUI(ui2);
         render();
       });
@@ -593,7 +583,6 @@
       selector.appendChild(b);
     }
 
-    // selected group card
     const gSel = GROUPS.find(x=>x.id===selected) || GROUPS[0];
     const doneSel = countDone(state, gSel);
 
@@ -651,12 +640,8 @@
 
   function render(){
     ensureDailyReset();
-
-    if(isMarketWeekend()){
-      renderWeekend();
-    }else{
-      renderWeekday();
-    }
+    if(isMarketWeekend()) renderWeekend();
+    else renderWeekday();
   }
 
   resetBtn.addEventListener("click", () => {
