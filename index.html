@@ -61,49 +61,54 @@
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:168px;
+    min-width:158px;
     text-align:center;
   }
 
   .content{ padding:8px; }
 
-  /* --- TOP SESSION PILLS (2x2 ON PHONE) --- */
-  .sessionGrid{
+  /* ===== TOP SESSION TABS ===== */
+  .tabs{
     display:grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap:8px;
     margin-bottom:8px;
   }
-  @media (max-width: 520px){
-    .sessionGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* phone: must fill first row then second row (2x2) */
+  @media (max-width: 430px){
+    .tabs{ grid-template-columns: 1fr 1fr; }
   }
 
-  .sessionPill{
+  .tab{
+    position:relative;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:10px;
+    gap:8px;
     padding:10px 10px;
     border-radius:14px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.12);
     cursor:pointer;
-    user-select:none;
     min-width:0;
+    overflow:hidden;
   }
 
-  .pillLeft{
+  .tabLeft{
     display:flex;
     align-items:center;
     gap:10px;
     min-width:0;
   }
-  .pillDot{
+
+  .tabDot{
     width:10px;height:10px;border-radius:50%;
     box-shadow:0 0 0 4px rgba(255,255,255,.08);
     flex:0 0 auto;
   }
-  .pillName{
+
+  .tabName{
     font-family:var(--mono);
     font-size:12px;
     color:rgba(255,255,255,.86);
@@ -111,34 +116,80 @@
     overflow:hidden;
     text-overflow:ellipsis;
   }
-  .pillCount{
+
+  .tabCount{
     font-family:var(--mono);
     font-size:11px;
-    padding:4px 8px;
+    color:rgba(255,255,255,.72);
+    padding:6px 10px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.16);
-    color:rgba(255,255,255,.78);
+    background:rgba(0,0,0,.18);
     white-space:nowrap;
     flex:0 0 auto;
+    min-width:54px;
+    text-align:center;
   }
 
-  /* selected pill */
-  .sessionPill.active{
-    border-color: rgba(255,255,255,.18);
-    background: rgba(255,255,255,.04);
+  /* Selected tab (manual selection) */
+  .tab.selected{
+    border-color: rgba(255,255,255,.14);
+    background: rgba(255,255,255,.05);
   }
 
-  /* ✅ ONE-TIME smooth outline grow (no loop) */
-  @keyframes outlineGrowOnce{
-    0%   { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
-    100% { box-shadow: 0 0 0 6px var(--glow); }
-  }
-  .sessionPill.growOnce{
-    animation: outlineGrowOnce 900ms ease-out forwards;
+  /* ===== Real-time progress outline (ONLY on tabs) =====
+     - Smooth, no loop
+     - Uses CSS variable --p (0..1) and --c (color)
+  */
+  .tab.activeTime{
+    --p: 0;
+    --c: rgba(255,255,255,.35);
   }
 
-  /* --- MAIN GROUP CARD --- */
+  .tab.activeTime::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius:16px;
+    padding:2px;
+    background:
+      conic-gradient(from 270deg,
+        rgba(255,255,255,.10) 0turn,
+        rgba(255,255,255,.10) calc(var(--p) * 1turn),
+        rgba(255,255,255,0) calc(var(--p) * 1turn),
+        rgba(255,255,255,0) 1turn
+      );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events:none;
+  }
+
+  .tab.activeTime::after{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius:16px;
+    padding:2px;
+    background:
+      conic-gradient(from 270deg,
+        color-mix(in srgb, var(--c) 90%, transparent) 0turn,
+        color-mix(in srgb, var(--c) 90%, transparent) calc(var(--p) * 1turn),
+        transparent calc(var(--p) * 1turn),
+        transparent 1turn
+      );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    filter: blur(.15px);
+    pointer-events:none;
+  }
+
+  /* ===== SINGLE GROUP (shown under tabs) ===== */
   .group{
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
@@ -152,6 +203,11 @@
     justify-content:space-between;
     gap:10px;
     padding:10px 10px;
+    position:relative;
+
+    /* IMPORTANT: no colored line under title */
+    border-bottom:1px solid rgba(255,255,255,.08);
+    background: transparent;
   }
 
   .headLeft{
@@ -161,13 +217,23 @@
     min-width:0;
   }
 
-  .badgeDot{
-    width:10px;height:10px;border-radius:50%;
-    box-shadow:0 0 0 4px rgba(255,255,255,.08);
-    flex:0 0 auto;
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:5px 9px;
+    border-radius:999px;
+    font-family:var(--mono);
+    font-size:10px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);
+    white-space:nowrap;
   }
 
-  .groupTitleWrap{ min-width:0; }
+  .badgeDot{
+    width:8px;height:8px;border-radius:50%;
+    box-shadow:0 0 0 4px rgba(255,255,255,.08);
+  }
 
   .groupTitle{
     font-size:12px;
@@ -184,33 +250,27 @@
     margin-top:2px;
   }
 
+  .headRight{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
   .countPill{
     font-family:var(--mono);
-    font-size:11px;
+    font-size:10px;
     padding:5px 9px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     color:rgba(255,255,255,.78);
     white-space:nowrap;
-    flex:0 0 auto;
     min-width:54px;
     text-align:center;
   }
 
-  /* ✅ THIS IS THE FIX: remove the colored underline / bar under title */
   .groupBody{
-    border-top:1px solid rgba(255,255,255,.08); /* neutral divider only */
-    padding:10px;
-    background: rgba(0,0,0,.10);
-    box-shadow:none !important;
-    background-image:none !important;
-  }
-  .groupHead::after,
-  .group::after,
-  .groupBody::before{
-    content:none !important;
-    display:none !important;
+    padding:8px;
   }
 
   .items{ display:flex; flex-direction:column; gap:8px; }
@@ -220,10 +280,11 @@
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:10px;
+    padding:8px;
     border-radius:12px;
     border:1px solid rgba(255,255,255,.08);
     background:rgba(0,0,0,.10);
+    position:relative;
   }
 
   .itemLeft{
@@ -243,6 +304,8 @@
     cursor:pointer;
     flex:0 0 auto;
     transition:transform 160ms ease,border-color 200ms ease,background 200ms ease,box-shadow 200ms ease;
+    position:relative;
+    overflow:visible;
   }
   .check:active{ transform:scale(.96); }
 
@@ -261,6 +324,7 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
+    transition:opacity 240ms ease,color 240ms ease;
   }
 
   .meta{
@@ -268,13 +332,13 @@
     font-size:10px;
     color:var(--muted);
     white-space:nowrap;
-    flex:0 0 auto;
   }
 
   .done .check{
     background:rgba(40,230,165,.12);
     border-color:rgba(40,230,165,.35);
     box-shadow:0 0 0 4px rgba(40,230,165,.08);
+    transform:scale(1.02);
   }
   .done .tick{
     border-left-color:rgba(40,230,165,.95);
@@ -288,13 +352,27 @@
     text-decoration-color:rgba(255,255,255,.24);
   }
 
+  @keyframes checkBurst {
+    0%   { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 0 rgba(40,230,165,0); }
+    20%  { box-shadow: 0 0 0 6px rgba(40,230,165,.14), 0 0 18px rgba(40,230,165,.22); }
+    60%  { box-shadow: 0 0 0 10px rgba(40,230,165,.08), 0 0 24px rgba(40,230,165,.14); }
+    100% { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
+  }
+  .burst .check{ animation: checkBurst 1.5s ease-out; }
+
   .footer{
     padding:8px 10px 10px;
     border-top:1px solid rgba(255,255,255,.07);
+    color:var(--muted);
+    font-size:10px;
     display:flex;
     justify-content:flex-end;
     align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
   }
+
+  #footLeft{ display:none !important; }
 
   .btn{
     font-family:var(--mono);
@@ -305,6 +383,12 @@
     background:rgba(0,0,0,.18);
     color:rgba(255,255,255,.78);
     cursor:pointer;
+  }
+
+  @media (max-width: 430px){
+    body{ padding:6px; }
+    .content{ padding:8px; }
+    .chip{ font-size:11px; padding:6px 12px; min-width:160px; }
   }
 </style>
 </head>
@@ -321,6 +405,7 @@
     </div>
 
     <div class="footer">
+      <div id="footLeft"></div>
       <button class="btn" id="resetBtn" type="button">Reset</button>
     </div>
   </div>
@@ -329,18 +414,23 @@
 <script>
   const TZ = "America/Toronto";
 
+  // ===== Groups (same content you had) =====
   const GROUPS = [
     {
-      id:"lock", key:"Lock", color:"#FF4D6D",
-      title:"NO-TRADE LOCK (POST-KILLZONE)",
-      subtitle:"",
-      items:[{ id:"lock_on", text:"Trading locked", meta:"1" }]
+      id: "lock",
+      short: "Lock",
+      color: "#FF4D6D",
+      title: "NO-TRADE LOCK (POST-KILLZONE)",
+      subtitle: "",
+      items: [{ id:"lock_on", text:"Trading locked", meta:"1" }]
     },
     {
-      id:"premkt", key:"Pre", color:"#3D78FF",
-      title:"NY PRE-MARKET (ICT BIAS)",
-      subtitle:"",
-      items:[
+      id: "premkt",
+      short: "Pre",
+      color: "#3D78FF",
+      title: "NY PRE-MARKET (ICT BIAS)",
+      subtitle: "",
+      items: [
         { id:"bias", text:"Daily bias", meta:"1" },
         { id:"news", text:"High-impact news", meta:"2" },
         { id:"asia", text:"Asia + London high/low", meta:"3" },
@@ -349,20 +439,24 @@
       ]
     },
     {
-      id:"killzone", key:"KZ", color:"#28E6A5",
-      title:"NY KILLZONE TRADING",
-      subtitle:"9:30 AM → 11:00 AM",
-      items:[
+      id: "killzone",
+      short: "KZ",
+      color: "#28E6A5",
+      title: "NY KILLZONE TRADING",
+      subtitle: "9:30 AM → 11:00 AM",
+      items: [
         { id:"confirm", text:"Wait for confirmation", meta:"1" },
         { id:"entry",   text:"Execute entry", meta:"2" },
         { id:"manage",  text:"Manage trade", meta:"3" }
       ]
     },
     {
-      id:"post", key:"Post", color:"#FFD34D",
-      title:"ICT POST-TRADE REVIEW",
-      subtitle:"",
-      items:[
+      id: "post",
+      short: "Post",
+      color: "#FFD34D",
+      title: "ICT POST-TRADE REVIEW",
+      subtitle: "",
+      items: [
         { id:"journal", text:"Journal setup & outcome", meta:"1" },
         { id:"ss",      text:"Chart screenshot", meta:"2" },
         { id:"emotion", text:"Emotion check", meta:"3" },
@@ -375,20 +469,21 @@
   const topChip = document.getElementById("topChip");
   const resetBtn = document.getElementById("resetBtn");
 
-  // ---- Time helpers (ET) ----
-  function getHMInTZ(tz, d=new Date()){
+  // ===== Time helpers (ET) =====
+  function getPartsInTZ(tz, date=new Date()){
     const parts = new Intl.DateTimeFormat("en-GB", {
       timeZone: tz,
       hour12:false,
       hour:"2-digit",
       minute:"2-digit"
-    }).formatToParts(d);
-    const get = (t)=>parts.find(p=>p.type===t)?.value ?? "00";
+    }).formatToParts(date);
+
+    const get = (type) => parts.find(p => p.type === type)?.value ?? "00";
     return { hh:get("hour"), mm:get("minute") };
   }
 
-  function minsNowET(){
-    const p = getHMInTZ(TZ);
+  function minsInTZ(tz){
+    const p = getPartsInTZ(tz);
     return Number(p.hh)*60 + Number(p.mm);
   }
 
@@ -396,46 +491,79 @@
     return new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday:"short" }).format(d);
   }
 
-  function ymd(tz, d=new Date()){
+  function fmtParts(tz, d=new Date()){
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
     }).formatToParts(d);
     const get = (t)=>parts.find(p=>p.type===t)?.value;
-    return `${get("year")}-${get("month")}-${get("day")}`;
+    return { y:get("year"), m:get("month"), day:get("day") };
   }
 
-  // ✅ Weekend market window: Fri 6pm → Sun 6pm ET
-  function isWeekendMarket(tz){
-    const wd = weekdayShort(tz);
-    const now = minsNowET();
+  function ymd(tz, d=new Date()){
+    const p = fmtParts(tz, d);
+    return `${p.y}-${p.m}-${p.day}`;
+  }
 
-    if(wd === "Fri" && now >= 18*60) return true;
+  // ===== Weekend market window: Fri 6PM -> Sun 6PM (ET) =====
+  function isWeekendMarketClosed(){
+    const wd = weekdayShort(TZ); // Fri/Sat/Sun/etc
+    const now = minsInTZ(TZ);
+    const cutoff = 18*60; // 6:00 PM
+
+    if(wd === "Fri" && now >= cutoff) return true;
     if(wd === "Sat") return true;
-    if(wd === "Sun" && now < 18*60) return true;
+    if(wd === "Sun" && now < cutoff) return true;
     return false;
   }
 
-  // ✅ Auto session switching (what you asked)
-  // Lock: 20:00 → 08:30
-  // Pre : 08:30 → 09:30
-  // KZ  : 09:30 → 11:00
-  // Post: 11:00 → 20:00
-  const T_LOCK_START = 20*60;      // 20:00
-  const T_PRE_OPEN   =  8*60+30;   // 08:30
-  const T_KZ_OPEN    =  9*60+30;   // 09:30
-  const T_KZ_CLOSE   = 11*60;      // 11:00
-  const T_POST_END   = 20*60;      // 20:00
+  // ===== Session timing (ET) =====
+  const T = {
+    LOCK_START: 20*60,   // 8:00 PM
+    PRE_OPEN:   8*60+30, // 8:30 AM
+    KZ_OPEN:    9*60+30, // 9:30 AM
+    KZ_CLOSE:   11*60,   // 11:00 AM
+    POST_END:   20*60    // 8:00 PM
+  };
 
-  function autoSessionId(){
-    const now = minsNowET();
-    if(now >= T_PRE_OPEN && now < T_KZ_OPEN) return "premkt";
-    if(now >= T_KZ_OPEN  && now < T_KZ_CLOSE) return "killzone";
-    if(now >= T_KZ_CLOSE && now < T_POST_END) return "post";
-    // lock is the rest (20:00→24:00 and 00:00→08:30)
-    return "lock";
+  function getAutoSessionKey(){
+    const now = minsInTZ(TZ);
+    // Lock = 8:00 PM -> 8:30 AM (overnight)
+    if(now >= T.LOCK_START || now < T.PRE_OPEN) return "lock";
+    // Pre = 8:30 -> 9:30
+    if(now >= T.PRE_OPEN && now < T.KZ_OPEN) return "premkt";
+    // KZ = 9:30 -> 11:00
+    if(now >= T.KZ_OPEN && now < T.KZ_CLOSE) return "killzone";
+    // Post = 11:00 -> 8:00 PM
+    return "post";
   }
 
-  // ---- Storage (same concept, daily ET) ----
+  function sessionProgress(key){
+    const now = minsInTZ(TZ);
+
+    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+    if(key === "premkt"){
+      const dur = (T.KZ_OPEN - T.PRE_OPEN);
+      return clamp01((now - T.PRE_OPEN)/dur);
+    }
+    if(key === "killzone"){
+      const dur = (T.KZ_CLOSE - T.KZ_OPEN);
+      return clamp01((now - T.KZ_OPEN)/dur);
+    }
+    if(key === "post"){
+      const dur = (T.POST_END - T.KZ_CLOSE);
+      return clamp01((now - T.KZ_CLOSE)/dur);
+    }
+    // lock crosses midnight: 20:00 -> 08:30
+    // treat timeline length = (24:00-20:00) + 08:30
+    const dur = (24*60 - T.LOCK_START) + T.PRE_OPEN; // 240 + 510 = 750
+    let elapsed;
+    if(now >= T.LOCK_START) elapsed = now - T.LOCK_START;
+    else elapsed = (24*60 - T.LOCK_START) + now;
+    return clamp01(elapsed/dur);
+  }
+
+  // ===== Storage (same robust approach) =====
   const memStore = new Map();
 
   function canUseLocalStorage(){
@@ -444,6 +572,7 @@
       return true;
     }catch{ return false; }
   }
+
   const LS_OK = canUseLocalStorage();
 
   const IDB_DB = "crtv_checklist_db";
@@ -543,7 +672,7 @@
   function dayKey(){ return `chk_day_${ymd(TZ)}`; }
   const stampKey = "chk_last_seen_day_et";
 
-  async function ensureDailyReset(){
+  async function ensureDailyStamp(){
     const today = ymd(TZ);
     const last = await storeGet(stampKey, null);
     if(last !== today){
@@ -554,71 +683,9 @@
   async function loadDayState(){ return await storeGet(dayKey(), {}); }
   async function saveDayState(state){ await storeSet(dayKey(), state); }
 
-  // ---- UI state ----
-  let selectedSession = null;
-  let lastAuto = null;
-
-  function etClockText(){
-    const p = getHMInTZ(TZ);
-    return `ET ${p.hh}:${p.mm} • Checklist`;
-  }
-
-  function countsFor(state){
-    const map = {};
-    for(const g of GROUPS){
-      const done = g.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
-      map[g.id] = { done, total: g.items.length };
-    }
-    return map;
-  }
-
-  function makeSessionPill(g, countObj, isActive){
-    const pill = document.createElement("div");
-    pill.className = "sessionPill" + (isActive ? " active" : "");
-    pill.dataset.sid = g.id;
-
-    pill.style.setProperty("--glow", hexToRgba(g.color, 0.18));
-
-    const left = document.createElement("div");
-    left.className = "pillLeft";
-
-    const dot = document.createElement("div");
-    dot.className = "pillDot";
-    dot.style.background = g.color;
-    dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
-
-    const name = document.createElement("div");
-    name.className = "pillName";
-    name.textContent = g.key;
-
-    left.appendChild(dot);
-    left.appendChild(name);
-
-    const c = document.createElement("div");
-    c.className = "pillCount";
-    c.textContent = `${countObj.done}/${countObj.total}`;
-
-    pill.appendChild(left);
-    pill.appendChild(c);
-
-    pill.addEventListener("click", () => {
-      selectedSession = g.id;
-      render(true); // user selection, keep auto switching running
-    });
-
-    return pill;
-  }
-
-  function hexToRgba(hex, a){
-    const c = hex.replace("#","").trim();
-    const r = parseInt(c.substring(0,2),16);
-    const g = parseInt(c.substring(2,4),16);
-    const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
-
+  // ===== Weekend UI (unchanged) =====
   function renderWeekend(){
-    topChip.textContent = etClockText().replace("Checklist","Weekend");
+    topChip.textContent = `ET ${getPartsInTZ(TZ).hh}:${getPartsInTZ(TZ).mm} • Weekend`;
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -632,7 +699,16 @@
           <div style="font-weight:800;font-size:12px;letter-spacing:.2px;">Weekend Review</div>
           <div style="margin-top:4px;color:rgba(255,255,255,.62);font-size:10px;">Plan + improve for next week</div>
         </div>
-        <div class="countPill">OFF</div>
+        <div style="
+          font-family:var(--mono);
+          font-size:10px;
+          padding:5px 9px;
+          border-radius:999px;
+          border:1px solid rgba(255,255,255,.12);
+          background:rgba(0,0,0,.18);
+          color:rgba(255,255,255,.78);
+          min-width:54px;
+          text-align:center;">OFF</div>
       </div>
       <div style="margin-top:10px;color:rgba(255,255,255,.78);font-size:11px;line-height:1.35;">
         • 1 best trade + why it worked<br/>
@@ -645,65 +721,84 @@
     root.appendChild(card);
   }
 
-  function growOnce(el){
-    // restart animation reliably
-    el.classList.remove("growOnce");
-    void el.offsetWidth;
-    el.classList.add("growOnce");
+  // ===== Main render (tabs + single group) =====
+  let selectedGroupId = null; // manual selection
+  let lastAutoGroupId = null; // detect change
+
+  function hexToRgba(hex, a){
+    const c = hex.replace("#","").trim();
+    const r = parseInt(c.substring(0,2),16);
+    const g = parseInt(c.substring(2,4),16);
+    const b = parseInt(c.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
   }
 
-  async function render(fromUserClick=false){
-    await ensureDailyReset();
-    topChip.textContent = etClockText();
-
-    // weekend market mode
-    if(isWeekendMarket(TZ)){
-      renderWeekend();
-      return;
-    }
+  async function renderWeekday(){
+    const p = getPartsInTZ(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
 
     const state = await loadDayState();
-    const counts = countsFor(state);
 
-    // auto session (still works even if user taps others)
-    const auto = autoSessionId();
-
-    // set selected if none OR if auto changed and user didn't just click
-    if(selectedSession == null) selectedSession = auto;
-
-    // always keep auto switching active (your request),
-    // but do NOT block manual switching:
-    // if time session changes, we auto move to it.
-    if(lastAuto !== auto){
-      lastAuto = auto;
-      selectedSession = auto;
+    // auto session
+    const autoId = getAutoSessionKey();
+    if(lastAutoGroupId !== autoId){
+      // auto-changed -> if user never selected, follow auto
+      lastAutoGroupId = autoId;
+      if(!selectedGroupId) selectedGroupId = autoId;
     }
+    if(!selectedGroupId) selectedGroupId = autoId;
 
-    // build UI
-    const frag = document.createDocumentFragment();
-
-    // top pills grid
-    const grid = document.createElement("div");
-    grid.className = "sessionGrid";
+    // build tabs
+    const tabs = document.createElement("div");
+    tabs.className = "tabs";
 
     for(const g of GROUPS){
-      const pill = makeSessionPill(g, counts[g.id], g.id === selectedSession);
-      // only animate when it becomes active by time switch
-      if(g.id === selectedSession && !fromUserClick){
-        growOnce(pill);
+      const done = g.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
+      const total = g.items.length;
+
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "tab";
+      tab.dataset.gid = g.id;
+
+      const dotShadow = hexToRgba(g.color, 0.12);
+
+      tab.innerHTML = `
+        <div class="tabLeft">
+          <div class="tabDot" style="background:${g.color}; box-shadow:0 0 0 4px ${dotShadow};"></div>
+          <div class="tabName">${g.short}</div>
+        </div>
+        <div class="tabCount">${done}/${total}</div>
+      `;
+
+      // manual selected
+      if(selectedGroupId === g.id) tab.classList.add("selected");
+
+      // active time glow (ONLY top tabs)
+      if(autoId === g.id){
+        tab.classList.add("activeTime");
+        tab.style.setProperty("--c", g.color);
+        tab.style.setProperty("--p", String(sessionProgress(g.id)));
       }
-      grid.appendChild(pill);
+
+      tab.addEventListener("click", async () => {
+        selectedGroupId = g.id;
+        await render(); // rerender to update selected border
+      });
+
+      tabs.appendChild(tab);
     }
 
-    frag.appendChild(grid);
-
-    // selected group card
-    const g = GROUPS.find(x => x.id === selectedSession) || GROUPS[0];
-    const done = counts[g.id].done;
-    const total = counts[g.id].total;
+    // show single group selected
+    const g = GROUPS.find(x=>x.id === selectedGroupId) || GROUPS[0];
+    const doneInGroup = g.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
+    const totalInGroup = g.items.length;
 
     const group = document.createElement("div");
     group.className = "group";
+
+    // NOTE: No colored line under the full title.
+    // Only neutral border-bottom is used in CSS.
 
     const head = document.createElement("div");
     head.className = "groupHead";
@@ -711,19 +806,24 @@
     const left = document.createElement("div");
     left.className = "headLeft";
 
+    const badge = document.createElement("div");
+    badge.className = "badge";
+
     const dot = document.createElement("div");
     dot.className = "badgeDot";
     dot.style.background = g.color;
     dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
 
+    badge.appendChild(dot);
+    left.appendChild(badge);
+
     const titleWrap = document.createElement("div");
-    titleWrap.className = "groupTitleWrap";
+    titleWrap.style.minWidth = "0";
 
-    const title = document.createElement("div");
-    title.className = "groupTitle";
-    title.textContent = g.title;
-
-    titleWrap.appendChild(title);
+    const titleLine = document.createElement("div");
+    titleLine.className = "groupTitle";
+    titleLine.textContent = g.title;
+    titleWrap.appendChild(titleLine);
 
     if(g.subtitle){
       const sub = document.createElement("div");
@@ -732,80 +832,95 @@
       titleWrap.appendChild(sub);
     }
 
-    left.appendChild(dot);
     left.appendChild(titleWrap);
 
-    const countPill = document.createElement("div");
-    countPill.className = "countPill";
-    countPill.textContent = `${done}/${total}`;
+    const right = document.createElement("div");
+    right.className = "headRight";
+
+    const count = document.createElement("div");
+    count.className = "countPill";
+    count.textContent = `${doneInGroup}/${totalInGroup}`;
+
+    right.appendChild(count);
 
     head.appendChild(left);
-    head.appendChild(countPill);
+    head.appendChild(right);
 
+    // group body
     const body = document.createElement("div");
     body.className = "groupBody";
 
-    const items = document.createElement("div");
-    items.className = "items";
+    const list = document.createElement("div");
+    list.className = "items";
 
     for(const it of g.items){
       const row = document.createElement("div");
       row.className = "item" + (state[it.id] ? " done" : "");
+      row.innerHTML = `
+        <div class="itemLeft">
+          <button class="check" type="button" aria-label="Toggle">
+            <span class="tick"></span>
+          </button>
+          <div class="txt"></div>
+        </div>
+        <div class="meta">${it.meta || ""}</div>
+      `;
+      row.querySelector(".txt").textContent = it.text;
 
-      const itemLeft = document.createElement("div");
-      itemLeft.className = "itemLeft";
-
-      const btn = document.createElement("button");
-      btn.className = "check";
-      btn.type = "button";
-      btn.setAttribute("aria-label", "Toggle");
-
-      const tick = document.createElement("span");
-      tick.className = "tick";
-      btn.appendChild(tick);
-
-      const txt = document.createElement("div");
-      txt.className = "txt";
-      txt.textContent = it.text;
-
-      itemLeft.appendChild(btn);
-      itemLeft.appendChild(txt);
-
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.textContent = it.meta || "";
-
-      row.appendChild(itemLeft);
-      row.appendChild(meta);
-
-      btn.addEventListener("click", async () => {
+      row.querySelector(".check").addEventListener("click", async () => {
         state[it.id] = !state[it.id];
         await saveDayState(state);
-        render(true);
+
+        row.classList.remove("burst");
+        void row.offsetWidth;
+        row.classList.add("burst");
+        setTimeout(() => row.classList.remove("burst"), 1500);
+
+        await render(); // refresh counts + progress outline
       });
 
-      items.appendChild(row);
+      list.appendChild(row);
     }
 
-    body.appendChild(items);
+    body.appendChild(list);
     group.appendChild(head);
     group.appendChild(body);
 
-    frag.appendChild(group);
-
+    // mount
     root.innerHTML = "";
-    root.appendChild(frag);
+    root.appendChild(tabs);
+    root.appendChild(group);
+  }
+
+  async function render(){
+    await ensureDailyStamp();
+
+    if(isWeekendMarketClosed()){
+      renderWeekend();
+      return;
+    }
+    await renderWeekday();
   }
 
   resetBtn.addEventListener("click", async () => {
     await storeDel(dayKey());
-    await render(true);
+    selectedGroupId = null; // let it auto-pick again after reset
+    await render();
   });
 
-  // initial + live updates
-  render(false);
-  setInterval(() => render(false), 15000);
-  setInterval(() => { topChip.textContent = etClockText(); }, 1000);
+  // Keep ET time + auto-switch + progress outline accurate
+  render();
+  setInterval(render, 15000);
+  setInterval(() => {
+    const p = getPartsInTZ(TZ);
+    // don’t rebuild UI every second, just update top chip quickly
+    // (render() still runs every 15s)
+    if(!isWeekendMarketClosed()){
+      topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
+    }else{
+      topChip.textContent = `ET ${p.hh}:${p.mm} • Weekend`;
+    }
+  }, 1000);
 </script>
 </body>
 </html>
