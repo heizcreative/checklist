@@ -137,8 +137,6 @@
     background: rgba(255,255,255,.05);
   }
 
-  /* (REMOVED) time-growing outline completely */
-
   /* ===== SINGLE GROUP (shown under tabs) ===== */
   .group{
     border:1px solid rgba(255,255,255,.10);
@@ -347,7 +345,8 @@
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <div class="chip" id="topChip">ET --:-- • Checklist</div>
+      <!-- ✅ CHANGE: REMOVE ET TIME, KEEP ONLY CHECKLIST -->
+      <div class="chip" id="topChip">Checklist</div>
     </div>
 
     <div class="content">
@@ -609,10 +608,9 @@
     return `rgba(${r},${g},${b},${a})`;
   }
 
-  // Weekend UI (unchanged)
+  // Weekend UI (unchanged UI, only chip text at top)
   function renderWeekend(){
-    const p = getPartsInTZ(TZ);
-    topChip.textContent = `ET ${p.hh}:${p.mm} • Weekend`;
+    topChip.textContent = "Weekend";
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -652,8 +650,8 @@
   let lastAutoGroupId = null;
 
   async function renderWeekday(){
-    const p = getPartsInTZ(TZ);
-    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
+    // ✅ CHANGE: TOP CHIP ALWAYS "CHECKLIST" (NO TIME)
+    topChip.textContent = "Checklist";
 
     const state = await loadDayState();
 
@@ -813,14 +811,8 @@
 
   setInterval(render, 15000);
 
-  setInterval(() => {
-    const p = getPartsInTZ(TZ);
-    if(!isWeekendMarketClosed()){
-      topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
-    }else{
-      topChip.textContent = `ET ${p.hh}:${p.mm} • Weekend`;
-    }
-  }, 1000);
+  // ✅ CHANGE: remove the live clock updater completely (was only for ET time in top chip)
+  // (Nothing else changed)
 </script>
 </body>
 </html>
