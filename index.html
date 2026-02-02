@@ -67,6 +67,53 @@
 
   .content{ padding:8px; }
 
+  /* NEW: session selector row (same glass style) */
+  .tabRow{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+
+  .tab{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);
+    color:rgba(255,255,255,.80);
+    font-family:var(--mono);
+    font-size:10px;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .tabDot{
+    width:8px;height:8px;border-radius:50%;
+    box-shadow:0 0 0 4px rgba(255,255,255,.08);
+    flex:0 0 auto;
+  }
+
+  .tabCount{
+    margin-left:2px;
+    padding:2px 7px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);
+    color:rgba(255,255,255,.78);
+    font-size:10px;
+    line-height:1;
+    min-width:36px;
+    text-align:center;
+  }
+
+  .tabActive{
+    border-color: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+  }
+
   .groups{ display:flex; flex-direction:column; gap:8px; }
 
   .group{
@@ -144,6 +191,7 @@
     text-align:center;
   }
 
+  /* keep toggle styles (not used now, but kept so design is unchanged overall) */
   .toggleBtn{
     width:30px;height:30px;
     border-radius:10px;
@@ -168,20 +216,10 @@
     border-top:1px solid rgba(255,255,255,.08);
     padding:8px;
     overflow:hidden;
-
     max-height:1000px;
     transition:max-height 260ms ease, padding 260ms ease, opacity 220ms ease;
     opacity:1;
   }
-
-  .collapsed .groupBody{
-    max-height:0px;
-    padding-top:0;
-    padding-bottom:0;
-    opacity:0;
-  }
-
-  .collapsed .chev{ transform:rotate(-45deg); }
 
   .items{ display:flex; flex-direction:column; gap:8px; }
 
@@ -276,7 +314,7 @@
     color:var(--muted);
     font-size:10px;
     display:flex;
-    justify-content:flex-end; /* hide left text visually */
+    justify-content:flex-end;
     align-items:center;
     gap:10px;
     flex-wrap:wrap;
@@ -310,6 +348,7 @@
     body{ padding:6px; }
     .content{ padding:8px; }
     .chip{ font-size:11px; padding:6px 12px; min-width:120px; }
+    .tab{ font-size:10px; padding:6px 10px; }
   }
 </style>
 </head>
@@ -318,7 +357,8 @@
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <div class="chip" id="topChip">Checklist</div>
+      <!-- Now shows live ET time like your sessions -->
+      <div class="chip" id="topChip">ET --:-- • Checklist</div>
     </div>
 
     <div class="content">
@@ -397,10 +437,12 @@
     const get = (t)=>parts.find(p=>p.type===t)?.value ?? "00";
     return { hh: get("hour"), mm: get("minute") };
   }
+
   function minsInTZ(tz){
     const p = getHMInTZ(tz);
     return Number(p.hh)*60 + Number(p.mm);
   }
+
   function fmtParts(tz, d=new Date()){
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
@@ -408,16 +450,27 @@
     const get = (t)=>parts.find(p=>p.type===t)?.value;
     return { y:get("year"), m:get("month"), day:get("day") };
   }
+
   function ymd(tz, d=new Date()){
     const p = fmtParts(tz, d);
     return `${p.y}-${p.m}-${p.day}`;
   }
+
   function weekdayShort(tz, d=new Date()){
     return new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday:"short" }).format(d);
   }
-  function isWeekend(tz){
-    const wd = weekdayShort(tz);
-    return wd === "Sat" || wd === "Sun";
+
+  // ✅ UPDATED: weekend mode is Fri 6PM → Sun 6PM (ET)
+  function isWeekendMode(tz, d=new Date()){
+    const wd = weekdayShort(tz, d); // Fri, Sat, Sun, etc
+    const now = minsInTZ(tz);
+
+    const SIX_PM = 18 * 60;
+
+    if(wd === "Sat") return true;
+    if(wd === "Sun") return now < SIX_PM;        // Sunday before 6pm = weekend mode
+    if(wd === "Fri") return now >= SIX_PM;       // Friday from 6pm = weekend mode
+    return false;                                 // Mon-Thu always active
   }
 
   // ---- Robust storage (localStorage -> IndexedDB -> memory) ----
@@ -437,7 +490,7 @@
   const IDB_STORE = "kv";
 
   function idbOpen(){
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve)=>{
       if(!("indexedDB" in window)) return resolve(null);
       const req = indexedDB.open(IDB_DB, 1);
       req.onupgradeneeded = () => {
@@ -486,20 +539,17 @@
 
   // Unified JSON storage
   async function storeGet(key, fallback){
-    // 1) localStorage
     if(LS_OK){
       try{
         const raw = localStorage.getItem(key);
         return raw ? JSON.parse(raw) : fallback;
       }catch{}
     }
-    // 2) IndexedDB
     try{
       const db = await idbDbPromise;
       const raw = await idbGet(db, key);
       return raw ? JSON.parse(raw) : fallback;
     }catch{}
-    // 3) memory
     try{
       const raw = memStore.get(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -509,17 +559,14 @@
 
   async function storeSet(key, val){
     const raw = JSON.stringify(val);
-    // 1) localStorage
     if(LS_OK){
       try{ localStorage.setItem(key, raw); return; }catch{}
     }
-    // 2) IndexedDB
     try{
       const db = await idbDbPromise;
       const ok = await idbSet(db, key, raw);
       if(ok) return;
     }catch{}
-    // 3) memory
     memStore.set(key, raw);
   }
 
@@ -536,7 +583,7 @@
 
   // ---- Storage keys based on ET day ----
   function dayKey(){ return `chk_day_${ymd(TZ)}`; }
-  function collapsedKey(){ return `chk_collapsed_${ymd(TZ)}`; }
+  function tabKey(){ return `chk_tab_${ymd(TZ)}`; }  // ✅ NEW
   const stampKey = "chk_last_seen_day_et";
 
   // ---- Glow timing (ET) ----
@@ -563,13 +610,9 @@
   }
 
   async function ensureDailyReset(){
-    // This guarantees: only resets when ET day changes,
-    // not when Notion closes.
     const today = ymd(TZ);
     const last = await storeGet(stampKey, null);
-
     if(last !== today){
-      // new ET day → naturally new key, but also clear any stray memory-only state
       await storeSet(stampKey, today);
     }
   }
@@ -577,176 +620,202 @@
   async function loadDayState(){ return await storeGet(dayKey(), {}); }
   async function saveDayState(state){ await storeSet(dayKey(), state); }
 
-  async function loadCollapsed(){ return await storeGet(collapsedKey(), {}); }
-  async function saveCollapsed(map){ await storeSet(collapsedKey(), map); }
+  async function loadTab(){
+    // default tab based on ET time (you can still click any)
+    const now = minsInTZ(TZ);
+    if(isBetween(now, PRE_OPEN, KZ_OPEN)) return "premkt";
+    if(isBetween(now, KZ_OPEN, KZ_CLOSE)) return "killzone";
+    if(now >= KZ_CLOSE) return "post";
+    return "premkt";
+  }
 
-  // ---- Render weekday UI ----
+  function countDoneInGroup(group, state){
+    const done = group.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
+    return { done, total: group.items.length };
+  }
+
+  // ---- Render weekday UI (NOW: only ONE selected group shows) ----
   async function renderWeekday(){
-    topChip.textContent = "Checklist";
-
     const state = await loadDayState();
-    const collapsedMap = await loadCollapsed();
     const now = minsInTZ(TZ);
 
+    // read tab or set default
+    let selected = await storeGet(tabKey(), null);
+    if(!selected){
+      selected = await loadTab();
+      await storeSet(tabKey(), selected);
+    }
+    if(!WEEKDAY_GROUPS.some(g=>g.id===selected)){
+      selected = "premkt";
+      await storeSet(tabKey(), selected);
+    }
+
     const wrap = document.createElement("div");
-    wrap.className = "groups";
+
+    // tabs row
+    const tabs = document.createElement("div");
+    tabs.className = "tabRow";
 
     for(const g of WEEKDAY_GROUPS){
-      const doneInGroup = g.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
-      const totalInGroup = g.items.length;
+      const {done, total} = countDoneInGroup(g, state);
 
-      const group = document.createElement("div");
-      group.className = "group";
-      group.dataset.gid = g.id;
+      const t = document.createElement("div");
+      t.className = "tab" + (g.id === selected ? " tabActive" : "");
 
-      const isCollapsed =
-        (collapsedMap[g.id] !== undefined)
-          ? collapsedMap[g.id]
-          : !!g.collapsedDefault;
-      if(isCollapsed) group.classList.add("collapsed");
+      t.innerHTML = `
+        <span class="tabDot" style="background:${g.color}; box-shadow:0 0 0 4px ${hexToRgba(g.color,.12)};"></span>
+        <span>${g.id === "premkt" ? "Pre" : g.id === "killzone" ? "KZ" : g.id === "post" ? "Post" : "Lock"}</span>
+        <span class="tabCount">${done}/${total}</span>
+      `;
 
-      // glow rules
-      if(g.id === "lock"){
-        const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
-        if(shouldGlow){
-          group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
-        }
-      }
-      if(g.id === "premkt"){
-        const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
-        if(shouldGlow){
-          group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
-        }
-      }
-      if(g.id === "killzone"){
-        const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
-        if(shouldGlow){
-          group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
-        }
-      }
-      if(g.id === "post"){
-        const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
-        if(shouldGlow){
-          group.classList.add("pulseGlow");
-          group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
-        }
-      }
-
-      // head
-      const head = document.createElement("div");
-      head.className = "groupHead";
-
-      const left = document.createElement("div");
-      left.className = "headLeft";
-
-      const badge = document.createElement("div");
-      badge.className = "badge";
-
-      const dot = document.createElement("div");
-      dot.className = "badgeDot";
-      dot.style.background = g.color;
-      dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
-
-      badge.appendChild(dot);
-      left.appendChild(badge);
-
-      const titleWrap = document.createElement("div");
-      titleWrap.style.minWidth = "0";
-
-      const titleLine = document.createElement("div");
-      titleLine.className = "groupTitle";
-      titleLine.textContent = g.title;
-
-      titleWrap.appendChild(titleLine);
-
-      if(g.subtitle){
-        const sub = document.createElement("div");
-        sub.className = "sub";
-        sub.textContent = g.subtitle;
-        titleWrap.appendChild(sub);
-      }
-
-      left.appendChild(titleWrap);
-
-      const right = document.createElement("div");
-      right.className = "headRight";
-
-      const count = document.createElement("div");
-      count.className = "countPill";
-      count.textContent = `${doneInGroup}/${totalInGroup}`;
-
-      const toggle = document.createElement("button");
-      toggle.className = "toggleBtn";
-      toggle.type = "button";
-      toggle.setAttribute("aria-label", "Toggle group");
-      toggle.innerHTML = `<div class="chev"></div>`;
-
-      toggle.addEventListener("click", async () => {
-        const nowCollapsed = !group.classList.contains("collapsed");
-        group.classList.toggle("collapsed", nowCollapsed);
-        collapsedMap[g.id] = nowCollapsed;
-        await saveCollapsed(collapsedMap);
+      t.addEventListener("click", async ()=>{
+        await storeSet(tabKey(), g.id);
+        await render();
       });
 
-      right.appendChild(count);
-      right.appendChild(toggle);
-
-      head.appendChild(left);
-      head.appendChild(right);
-
-      // body
-      const body = document.createElement("div");
-      body.className = "groupBody";
-
-      const list = document.createElement("div");
-      list.className = "items";
-
-      for(const it of g.items){
-        const row = document.createElement("div");
-        row.className = "item" + (state[it.id] ? " done" : "");
-
-        row.innerHTML = `
-          <div class="itemLeft">
-            <button class="check" type="button" aria-label="Toggle">
-              <span class="tick"></span>
-            </button>
-            <div class="txt"></div>
-          </div>
-          <div class="meta">${it.meta || ""}</div>
-        `;
-        row.querySelector(".txt").textContent = it.text;
-
-        row.querySelector(".check").addEventListener("click", async () => {
-          state[it.id] = !state[it.id];
-          await saveDayState(state);
-
-          row.classList.remove("burst");
-          void row.offsetWidth;
-          row.classList.add("burst");
-          setTimeout(() => row.classList.remove("burst"), 1500);
-
-          await render(); // re-render for counts + glow rules
-        });
-
-        list.appendChild(row);
-      }
-
-      body.appendChild(list);
-      group.appendChild(head);
-      group.appendChild(body);
-      wrap.appendChild(group);
+      tabs.appendChild(t);
     }
+
+    // group container (ONLY selected)
+    const groupsWrap = document.createElement("div");
+    groupsWrap.className = "groups";
+
+    const g = WEEKDAY_GROUPS.find(x=>x.id===selected);
+    const {done, total} = countDoneInGroup(g, state);
+
+    const group = document.createElement("div");
+    group.className = "group";
+    group.dataset.gid = g.id;
+
+    // glow rules (same logic as before but for the selected group only)
+    if(g.id === "lock"){
+      const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
+      if(shouldGlow){
+        group.classList.add("pulseGlow");
+        group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
+      }
+    }
+    if(g.id === "premkt"){
+      const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
+      if(shouldGlow){
+        group.classList.add("pulseGlow");
+        group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
+      }
+    }
+    if(g.id === "killzone"){
+      const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
+      if(shouldGlow){
+        group.classList.add("pulseGlow");
+        group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
+      }
+    }
+    if(g.id === "post"){
+      const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
+      if(shouldGlow){
+        group.classList.add("pulseGlow");
+        group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
+      }
+    }
+
+    // head
+    const head = document.createElement("div");
+    head.className = "groupHead";
+
+    const left = document.createElement("div");
+    left.className = "headLeft";
+
+    const badge = document.createElement("div");
+    badge.className = "badge";
+
+    const dot = document.createElement("div");
+    dot.className = "badgeDot";
+    dot.style.background = g.color;
+    dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
+
+    badge.appendChild(dot);
+    left.appendChild(badge);
+
+    const titleWrap = document.createElement("div");
+    titleWrap.style.minWidth = "0";
+
+    const titleLine = document.createElement("div");
+    titleLine.className = "groupTitle";
+    titleLine.textContent = g.title;
+
+    titleWrap.appendChild(titleLine);
+
+    if(g.subtitle){
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.textContent = g.subtitle;
+      titleWrap.appendChild(sub);
+    }
+
+    left.appendChild(titleWrap);
+
+    const right = document.createElement("div");
+    right.className = "headRight";
+
+    const count = document.createElement("div");
+    count.className = "countPill";
+    count.textContent = `${done}/${total}`;
+
+    right.appendChild(count);
+
+    head.appendChild(left);
+    head.appendChild(right);
+
+    // body
+    const body = document.createElement("div");
+    body.className = "groupBody";
+
+    const list = document.createElement("div");
+    list.className = "items";
+
+    for(const it of g.items){
+      const row = document.createElement("div");
+      row.className = "item" + (state[it.id] ? " done" : "");
+
+      row.innerHTML = `
+        <div class="itemLeft">
+          <button class="check" type="button" aria-label="Toggle">
+            <span class="tick"></span>
+          </button>
+          <div class="txt"></div>
+        </div>
+        <div class="meta">${it.meta || ""}</div>
+      `;
+      row.querySelector(".txt").textContent = it.text;
+
+      row.querySelector(".check").addEventListener("click", async () => {
+        state[it.id] = !state[it.id];
+        await saveDayState(state);
+
+        row.classList.remove("burst");
+        void row.offsetWidth;
+        row.classList.add("burst");
+        setTimeout(() => row.classList.remove("burst"), 1500);
+
+        await render(); // refresh counts + glow
+      });
+
+      list.appendChild(row);
+    }
+
+    body.appendChild(list);
+    group.appendChild(head);
+    group.appendChild(body);
+    groupsWrap.appendChild(group);
+
+    wrap.appendChild(tabs);
+    wrap.appendChild(groupsWrap);
 
     root.innerHTML = "";
     root.appendChild(wrap);
   }
 
   function renderWeekend(){
-    topChip.textContent = "Weekend";
-
+    // unchanged UI
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
     card.style.borderRadius = "14px";
@@ -772,23 +841,31 @@
     root.appendChild(card);
   }
 
+  function updateTopChip(){
+    const p = getHMInTZ(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
+  }
+
   async function render(){
-    await ensureDailyReset(); // ET-based, silent
-    if(isWeekend(TZ)) renderWeekend();
+    await ensureDailyReset();
+    updateTopChip();
+
+    if(isWeekendMode(TZ)) renderWeekend();
     else await renderWeekday();
   }
 
   resetBtn.addEventListener("click", async () => {
     await storeDel(dayKey());
-    await storeDel(collapsedKey());
+    await storeDel(tabKey()); // also reset selected tab for the day
     await render();
   });
 
   // Initial render
   render();
 
-  // Keep glow timing accurate + midnight detection
+  // Keep time + weekend switching accurate
   setInterval(render, 15000);
+  setInterval(updateTopChip, 1000);
 </script>
 </body>
 </html>
