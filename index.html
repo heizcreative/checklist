@@ -61,61 +61,89 @@
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:118px;
+    min-width:170px;
     text-align:center;
   }
 
   .content{ padding:8px; }
 
-  /* NEW: session selector row (same glass style) */
-  .tabRow{
-    display:flex;
+  /* -------- TOP TABS (fills first row properly on phone) -------- */
+  .tabs{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap:8px;
-    flex-wrap:wrap;
     margin-bottom:8px;
   }
 
+  @media (max-width: 430px){
+    .tabs{
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2x2 on phone */
+    }
+  }
+
   .tab{
-    display:inline-flex;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    padding:8px 10px;
+    background:rgba(0,0,0,.12);
+    display:flex;
     align-items:center;
-    gap:8px;
-    padding:6px 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
-    color:rgba(255,255,255,.80);
-    font-family:var(--mono);
-    font-size:10px;
+    justify-content:space-between;
+    gap:10px;
     cursor:pointer;
     user-select:none;
+    min-width:0;
+  }
+
+  .tabLeft{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
   }
 
   .tabDot{
-    width:8px;height:8px;border-radius:50%;
-    box-shadow:0 0 0 4px rgba(255,255,255,.08);
+    width:10px;height:10px;border-radius:50%;
     flex:0 0 auto;
+    box-shadow:0 0 0 4px rgba(255,255,255,.08);
+  }
+
+  .tabName{
+    font-family:var(--mono);
+    font-size:11px;
+    color:rgba(255,255,255,.88);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
 
   .tabCount{
-    margin-left:2px;
-    padding:2px 7px;
+    font-family:var(--mono);
+    font-size:10px;
+    padding:5px 9px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
     color:rgba(255,255,255,.78);
-    font-size:10px;
-    line-height:1;
-    min-width:36px;
+    white-space:nowrap;
+    min-width:54px;
     text-align:center;
+    flex:0 0 auto;
   }
 
-  .tabActive{
-    border-color: rgba(255,255,255,.18);
-    background: rgba(255,255,255,.06);
+  /* ACTIVE tab glow (only on title/tab, not items) */
+  @keyframes tabPulse {
+    0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
+    50%  { box-shadow: 0 0 0 6px var(--pulseRing), 0 0 28px var(--pulseGlow); }
+    100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
   }
 
-  .groups{ display:flex; flex-direction:column; gap:8px; }
+  .tab.active{
+    border-color: rgba(255,255,255,.16);
+    animation: tabPulse 1.8s ease-in-out infinite;
+  }
 
+  /* -------- GROUP CARD (same style as before) -------- */
   .group{
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
@@ -128,8 +156,9 @@
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:8px 8px;
+    padding:10px 10px;
     position:relative;
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
 
   .headLeft{
@@ -172,56 +201,12 @@
     margin-top:2px;
   }
 
-  .headRight{
+  .items{
     display:flex;
-    align-items:center;
+    flex-direction:column;
     gap:8px;
+    padding:10px;
   }
-
-  .countPill{
-    font-family:var(--mono);
-    font-size:10px;
-    padding:5px 9px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
-    color:rgba(255,255,255,.78);
-    white-space:nowrap;
-    min-width:54px;
-    text-align:center;
-  }
-
-  /* keep toggle styles (not used now, but kept so design is unchanged overall) */
-  .toggleBtn{
-    width:30px;height:30px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
-    display:grid;
-    place-items:center;
-    cursor:pointer;
-    transition:transform 180ms ease;
-  }
-  .toggleBtn:active{ transform:scale(.96); }
-
-  .chev{
-    width:10px;height:10px;
-    border-right:2px solid rgba(255,255,255,.70);
-    border-bottom:2px solid rgba(255,255,255,.70);
-    transform:rotate(45deg);
-    transition:transform 220ms ease;
-  }
-
-  .groupBody{
-    border-top:1px solid rgba(255,255,255,.08);
-    padding:8px;
-    overflow:hidden;
-    max-height:1000px;
-    transition:max-height 260ms ease, padding 260ms ease, opacity 220ms ease;
-    opacity:1;
-  }
-
-  .items{ display:flex; flex-direction:column; gap:8px; }
 
   .item{
     display:flex;
@@ -319,8 +304,6 @@
     gap:10px;
     flex-wrap:wrap;
   }
-
-  /* HIDE the left reset text completely */
   #footLeft{ display:none !important; }
 
   .btn{
@@ -334,21 +317,10 @@
     cursor:pointer;
   }
 
-  @keyframes sectionPulseVar {
-    0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-    50%  { box-shadow: 0 0 0 6px rgba(40,230,165,.10), 0 0 26px rgba(40,230,165,.14); }
-    100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-  }
-
-  .pulseGlow{
-    animation: sectionPulseVar 1.8s ease-in-out infinite;
-  }
-
   @media (max-width: 430px){
     body{ padding:6px; }
     .content{ padding:8px; }
-    .chip{ font-size:11px; padding:6px 12px; min-width:120px; }
-    .tab{ font-size:10px; padding:6px 10px; }
+    .chip{ font-size:11px; padding:6px 12px; min-width:180px; }
   }
 </style>
 </head>
@@ -357,11 +329,11 @@
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <!-- Now shows live ET time like your sessions -->
       <div class="chip" id="topChip">ET --:-- • Checklist</div>
     </div>
 
     <div class="content">
+      <div id="tabs" class="tabs"></div>
       <div id="root"></div>
     </div>
 
@@ -378,13 +350,14 @@
   const WEEKDAY_GROUPS = [
     {
       id: "lock",
+      short: "Lock",
       color: "#FF4D6D",
       title: "NO-TRADE LOCK (POST-KILLZONE)",
       items: [{ id:"lock_on", text:"Trading locked", meta:"1" }],
-      collapsedDefault: true
     },
     {
       id: "premkt",
+      short: "Pre",
       color: "#3D78FF",
       title: "NY PRE-MARKET (ICT BIAS)",
       items: [
@@ -394,10 +367,10 @@
         { id:"pd",   text:"HTF PD arrays", meta:"4" },
         { id:"one",  text:"One ICT model only", meta:"5" }
       ],
-      collapsedDefault: false
     },
     {
       id: "killzone",
+      short: "KZ",
       color: "#28E6A5",
       title: "NY KILLZONE TRADING",
       subtitle: "9:30 AM → 11:00 AM",
@@ -406,10 +379,10 @@
         { id:"entry",   text:"Execute entry", meta:"2" },
         { id:"manage",  text:"Manage trade", meta:"3" }
       ],
-      collapsedDefault: false
     },
     {
       id: "post",
+      short: "Post",
       color: "#FFD34D",
       title: "ICT POST-TRADE REVIEW",
       items: [
@@ -418,11 +391,11 @@
         { id:"emotion", text:"Emotion check", meta:"3" },
         { id:"rules",   text:"Followed ICT rules?", meta:"4" }
       ],
-      collapsedDefault: false
     }
   ];
 
   const root = document.getElementById("root");
+  const tabs = document.getElementById("tabs");
   const topChip = document.getElementById("topChip");
   const resetBtn = document.getElementById("resetBtn");
 
@@ -443,37 +416,24 @@
     return Number(p.hh)*60 + Number(p.mm);
   }
 
-  function fmtParts(tz, d=new Date()){
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
-    }).formatToParts(d);
-    const get = (t)=>parts.find(p=>p.type===t)?.value;
-    return { y:get("year"), m:get("month"), day:get("day") };
-  }
-
-  function ymd(tz, d=new Date()){
-    const p = fmtParts(tz, d);
-    return `${p.y}-${p.m}-${p.day}`;
-  }
-
   function weekdayShort(tz, d=new Date()){
     return new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday:"short" }).format(d);
   }
 
-  // ✅ UPDATED: weekend mode is Fri 6PM → Sun 6PM (ET)
-  function isWeekendMode(tz, d=new Date()){
-    const wd = weekdayShort(tz, d); // Fri, Sat, Sun, etc
+  function isWeekendMode(tz){
+    // Weekend mode: Fri 6:00 PM ET -> Sun 6:00 PM ET
+    const wd = weekdayShort(tz);
     const now = minsInTZ(tz);
-
-    const SIX_PM = 18 * 60;
+    const FRI_6PM = 18*60;
+    const SUN_6PM = 18*60;
 
     if(wd === "Sat") return true;
-    if(wd === "Sun") return now < SIX_PM;        // Sunday before 6pm = weekend mode
-    if(wd === "Fri") return now >= SIX_PM;       // Friday from 6pm = weekend mode
-    return false;                                 // Mon-Thu always active
+    if(wd === "Fri" && now >= FRI_6PM) return true;
+    if(wd === "Sun" && now < SUN_6PM) return true;
+    return false;
   }
 
-  // ---- Robust storage (localStorage -> IndexedDB -> memory) ----
+  // ---- Robust storage (same as your code) ----
   const memStore = new Map();
 
   function canUseLocalStorage(){
@@ -482,10 +442,8 @@
       return true;
     }catch{ return false; }
   }
-
   const LS_OK = canUseLocalStorage();
 
-  // IndexedDB tiny helper
   const IDB_DB = "crtv_checklist_db";
   const IDB_STORE = "kv";
 
@@ -537,7 +495,6 @@
 
   let idbDbPromise = idbOpen();
 
-  // Unified JSON storage
   async function storeGet(key, fallback){
     if(LS_OK){
       try{
@@ -582,32 +539,20 @@
   }
 
   // ---- Storage keys based on ET day ----
+  function fmtParts(tz, d=new Date()){
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
+    }).formatToParts(d);
+    const get = (t)=>parts.find(p=>p.type===t)?.value;
+    return { y:get("year"), m:get("month"), day:get("day") };
+  }
+  function ymd(tz, d=new Date()){
+    const p = fmtParts(tz, d);
+    return `${p.y}-${p.m}-${p.day}`;
+  }
+
   function dayKey(){ return `chk_day_${ymd(TZ)}`; }
-  function tabKey(){ return `chk_tab_${ymd(TZ)}`; }  // ✅ NEW
   const stampKey = "chk_last_seen_day_et";
-
-  // ---- Glow timing (ET) ----
-  const PRE_OPEN  = 8*60 + 30;
-  const KZ_OPEN   = 9*60 + 30;
-  const KZ_CLOSE  = 11*60;
-
-  function isBetween(now, start, end){
-    return now >= start && now < end;
-  }
-
-  function postAllChecked(state){
-    const g = WEEKDAY_GROUPS.find(x=>x.id==="post");
-    if(!g) return true;
-    return g.items.every(it => !!state[it.id]);
-  }
-
-  function hexToRgba(hex, a){
-    const c = hex.replace("#","").trim();
-    const r = parseInt(c.substring(0,2),16);
-    const g = parseInt(c.substring(2,4),16);
-    const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
 
   async function ensureDailyReset(){
     const today = ymd(TZ);
@@ -620,157 +565,157 @@
   async function loadDayState(){ return await storeGet(dayKey(), {}); }
   async function saveDayState(state){ await storeSet(dayKey(), state); }
 
-  async function loadTab(){
-    // default tab based on ET time (you can still click any)
+  // ---- AUTO GROUP SWITCH (by time) ----
+  const LOCK_START = 20*60;     // 8:00 PM
+  const PRE_OPEN   = 8*60 + 30; // 8:30 AM
+  const KZ_OPEN    = 9*60 + 30; // 9:30 AM
+  const KZ_CLOSE   = 11*60;     // 11:00 AM
+
+  function autoGroupId(){
     const now = minsInTZ(TZ);
-    if(isBetween(now, PRE_OPEN, KZ_OPEN)) return "premkt";
-    if(isBetween(now, KZ_OPEN, KZ_CLOSE)) return "killzone";
-    if(now >= KZ_CLOSE) return "post";
-    return "premkt";
+
+    // Lock: 8:00 PM -> 8:30 AM (overnight)
+    if(now >= LOCK_START || now < PRE_OPEN) return "lock";
+
+    // Pre: 8:30 -> 9:30
+    if(now >= PRE_OPEN && now < KZ_OPEN) return "premkt";
+
+    // KZ: 9:30 -> 11:00
+    if(now >= KZ_OPEN && now < KZ_CLOSE) return "killzone";
+
+    // Post: 11:00 -> 8:00 PM
+    return "post";
   }
 
-  function countDoneInGroup(group, state){
+  // Manual override window so user can view other tabs without instant switch
+  let manualOverrideUntil = 0;
+  let activeGroup = "premkt";
+
+  // ---- UI helpers ----
+  function hexToRgba(hex, a){
+    const c = hex.replace("#","").trim();
+    const r = parseInt(c.substring(0,2),16);
+    const g = parseInt(c.substring(2,4),16);
+    const b = parseInt(c.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function tabPulseVars(color){
+    return {
+      ring: hexToRgba(color, 0.14),
+      glow: hexToRgba(color, 0.18)
+    };
+  }
+
+  function countDone(group, state){
     const done = group.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
     return { done, total: group.items.length };
   }
 
-  // ---- Render weekday UI (NOW: only ONE selected group shows) ----
+  function updateTopChip(){
+    const p = getHMInTZ(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
+  }
+
+  // ---- Weekend UI (unchanged) ----
+  function renderWeekend(){
+    topChip.textContent = "Weekend";
+
+    tabs.innerHTML = "";
+
+    const card = document.createElement("div");
+    card.style.border = "1px solid rgba(255,255,255,.10)";
+    card.style.borderRadius = "14px";
+    card.style.padding = "12px";
+    card.style.background = "rgba(255,255,255,.05)";
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.2px;">Weekend Review</div>
+          <div style="margin-top:4px;color:rgba(255,255,255,.62);font-size:10px;">Plan + improve for next week</div>
+        </div>
+        <div class="tabCount">OFF</div>
+      </div>
+      <div style="margin-top:10px;color:rgba(255,255,255,.78);font-size:11px;line-height:1.35;">
+        • 1 best trade + why it worked<br/>
+        • 1 biggest mistake + fix rule<br/>
+        • Backtest goal (20 charts)
+      </div>
+    `;
+
+    root.innerHTML = "";
+    root.appendChild(card);
+  }
+
+  // ---- Render tabs + active group ----
   async function renderWeekday(){
     const state = await loadDayState();
-    const now = minsInTZ(TZ);
 
-    // read tab or set default
-    let selected = await storeGet(tabKey(), null);
-    if(!selected){
-      selected = await loadTab();
-      await storeSet(tabKey(), selected);
-    }
-    if(!WEEKDAY_GROUPS.some(g=>g.id===selected)){
-      selected = "premkt";
-      await storeSet(tabKey(), selected);
-    }
-
-    const wrap = document.createElement("div");
-
-    // tabs row
-    const tabs = document.createElement("div");
-    tabs.className = "tabRow";
-
+    // Tabs
+    tabs.innerHTML = "";
     for(const g of WEEKDAY_GROUPS){
-      const {done, total} = countDoneInGroup(g, state);
+      const { done, total } = countDone(g, state);
 
-      const t = document.createElement("div");
-      t.className = "tab" + (g.id === selected ? " tabActive" : "");
+      const tab = document.createElement("div");
+      tab.className = "tab" + (g.id === activeGroup ? " active" : "");
 
-      t.innerHTML = `
-        <span class="tabDot" style="background:${g.color}; box-shadow:0 0 0 4px ${hexToRgba(g.color,.12)};"></span>
-        <span>${g.id === "premkt" ? "Pre" : g.id === "killzone" ? "KZ" : g.id === "post" ? "Post" : "Lock"}</span>
-        <span class="tabCount">${done}/${total}</span>
+      const vars = tabPulseVars(g.color);
+      tab.style.setProperty("--pulseRing", vars.ring);
+      tab.style.setProperty("--pulseGlow", vars.glow);
+
+      tab.innerHTML = `
+        <div class="tabLeft">
+          <div class="tabDot" style="background:${g.color};box-shadow:0 0 0 4px ${hexToRgba(g.color,0.12)};"></div>
+          <div class="tabName">${g.short}</div>
+        </div>
+        <div class="tabCount">${done}/${total}</div>
       `;
 
-      t.addEventListener("click", async ()=>{
-        await storeSet(tabKey(), g.id);
-        await render();
+      tab.addEventListener("click", () => {
+        activeGroup = g.id;
+        manualOverrideUntil = Date.now() + 5 * 60 * 1000; // 5 min
+        render(); // rerender
       });
 
-      tabs.appendChild(t);
+      tabs.appendChild(tab);
     }
 
-    // group container (ONLY selected)
-    const groupsWrap = document.createElement("div");
-    groupsWrap.className = "groups";
-
-    const g = WEEKDAY_GROUPS.find(x=>x.id===selected);
-    const {done, total} = countDoneInGroup(g, state);
+    // Active group
+    const g = WEEKDAY_GROUPS.find(x => x.id === activeGroup) || WEEKDAY_GROUPS[0];
+    const { done, total } = countDone(g, state);
 
     const group = document.createElement("div");
     group.className = "group";
-    group.dataset.gid = g.id;
 
-    // glow rules (same logic as before but for the selected group only)
-    if(g.id === "lock"){
-      const shouldGlow = (now < KZ_OPEN) || (now >= KZ_CLOSE);
-      if(shouldGlow){
-        group.classList.add("pulseGlow");
-        group.style.setProperty("--pulse", "rgba(255,77,109,.18)");
-      }
-    }
-    if(g.id === "premkt"){
-      const shouldGlow = isBetween(now, PRE_OPEN, KZ_OPEN);
-      if(shouldGlow){
-        group.classList.add("pulseGlow");
-        group.style.setProperty("--pulse", "rgba(61,120,255,.18)");
-      }
-    }
-    if(g.id === "killzone"){
-      const shouldGlow = isBetween(now, KZ_OPEN, KZ_CLOSE);
-      if(shouldGlow){
-        group.classList.add("pulseGlow");
-        group.style.setProperty("--pulse", "rgba(40,230,165,.18)");
-      }
-    }
-    if(g.id === "post"){
-      const shouldGlow = (now >= KZ_CLOSE) && !postAllChecked(state);
-      if(shouldGlow){
-        group.classList.add("pulseGlow");
-        group.style.setProperty("--pulse", "rgba(255,211,77,.20)");
-      }
-    }
+    // Glow on section header only
+    const vars = tabPulseVars(g.color);
+    const headGlowStyle = `
+      animation: tabPulse 1.8s ease-in-out infinite;
+      --pulseRing:${vars.ring};
+      --pulseGlow:${vars.glow};
+      border-color: rgba(255,255,255,.16);
+    `;
 
-    // head
     const head = document.createElement("div");
     head.className = "groupHead";
+    head.style.cssText = headGlowStyle;
 
-    const left = document.createElement("div");
-    left.className = "headLeft";
+    head.innerHTML = `
+      <div class="headLeft">
+        <div class="badge">
+          <div class="badgeDot" style="background:${g.color};box-shadow:0 0 0 4px ${hexToRgba(g.color,0.12)};"></div>
+        </div>
+        <div style="min-width:0;">
+          <div class="groupTitle">${g.title}</div>
+          ${g.subtitle ? `<div class="sub">${g.subtitle}</div>` : ``}
+        </div>
+      </div>
+      <div class="tabCount">${done}/${total}</div>
+    `;
 
-    const badge = document.createElement("div");
-    badge.className = "badge";
-
-    const dot = document.createElement("div");
-    dot.className = "badgeDot";
-    dot.style.background = g.color;
-    dot.style.boxShadow = `0 0 0 4px ${hexToRgba(g.color, 0.12)}`;
-
-    badge.appendChild(dot);
-    left.appendChild(badge);
-
-    const titleWrap = document.createElement("div");
-    titleWrap.style.minWidth = "0";
-
-    const titleLine = document.createElement("div");
-    titleLine.className = "groupTitle";
-    titleLine.textContent = g.title;
-
-    titleWrap.appendChild(titleLine);
-
-    if(g.subtitle){
-      const sub = document.createElement("div");
-      sub.className = "sub";
-      sub.textContent = g.subtitle;
-      titleWrap.appendChild(sub);
-    }
-
-    left.appendChild(titleWrap);
-
-    const right = document.createElement("div");
-    right.className = "headRight";
-
-    const count = document.createElement("div");
-    count.className = "countPill";
-    count.textContent = `${done}/${total}`;
-
-    right.appendChild(count);
-
-    head.appendChild(left);
-    head.appendChild(right);
-
-    // body
-    const body = document.createElement("div");
-    body.className = "groupBody";
-
-    const list = document.createElement("div");
-    list.className = "items";
+    const itemsWrap = document.createElement("div");
+    itemsWrap.className = "items";
 
     for(const it of g.items){
       const row = document.createElement("div");
@@ -796,74 +741,49 @@
         row.classList.add("burst");
         setTimeout(() => row.classList.remove("burst"), 1500);
 
-        await render(); // refresh counts + glow
+        await render();
       });
 
-      list.appendChild(row);
+      itemsWrap.appendChild(row);
     }
 
-    body.appendChild(list);
+    group.innerHTML = "";
     group.appendChild(head);
-    group.appendChild(body);
-    groupsWrap.appendChild(group);
-
-    wrap.appendChild(tabs);
-    wrap.appendChild(groupsWrap);
+    group.appendChild(itemsWrap);
 
     root.innerHTML = "";
-    root.appendChild(wrap);
+    root.appendChild(group);
   }
 
-  function renderWeekend(){
-    // unchanged UI
-    const card = document.createElement("div");
-    card.style.border = "1px solid rgba(255,255,255,.10)";
-    card.style.borderRadius = "14px";
-    card.style.padding = "12px";
-    card.style.background = "rgba(255,255,255,.05)";
-
-    card.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-        <div>
-          <div style="font-weight:800;font-size:12px;letter-spacing:.2px;">Weekend Review</div>
-          <div style="margin-top:4px;color:rgba(255,255,255,.62);font-size:10px;">Plan + improve for next week</div>
-        </div>
-        <div class="countPill">OFF</div>
-      </div>
-      <div style="margin-top:10px;color:rgba(255,255,255,.78);font-size:11px;line-height:1.35;">
-        • 1 best trade + why it worked<br/>
-        • 1 biggest mistake + fix rule<br/>
-        • Backtest goal (20 charts)
-      </div>
-    `;
-
-    root.innerHTML = "";
-    root.appendChild(card);
-  }
-
-  function updateTopChip(){
-    const p = getHMInTZ(TZ);
-    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
-  }
-
+  // ---- Main render ----
   async function render(){
     await ensureDailyReset();
-    updateTopChip();
 
-    if(isWeekendMode(TZ)) renderWeekend();
-    else await renderWeekday();
+    // Weekend window (Fri 6pm -> Sun 6pm)
+    if(isWeekendMode(TZ)){
+      renderWeekend();
+      return;
+    }
+
+    // Auto switch by time (but allow manual for a bit)
+    const now = Date.now();
+    if(now > manualOverrideUntil){
+      activeGroup = autoGroupId();
+    }
+
+    updateTopChip();
+    await renderWeekday();
   }
 
   resetBtn.addEventListener("click", async () => {
     await storeDel(dayKey());
-    await storeDel(tabKey()); // also reset selected tab for the day
     await render();
   });
 
-  // Initial render
+  // Initial
   render();
 
-  // Keep time + weekend switching accurate
+  // Keep time switching accurate
   setInterval(render, 15000);
   setInterval(updateTopChip, 1000);
 </script>
