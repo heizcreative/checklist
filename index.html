@@ -61,89 +61,81 @@
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:170px;
+    min-width:140px;
     text-align:center;
   }
 
   .content{ padding:8px; }
 
-  /* -------- TOP TABS (fills first row properly on phone) -------- */
-  .tabs{
+  /* --- TOP SELECTOR PILLS --- */
+  .selector{
     display:grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap:8px;
     margin-bottom:8px;
+    grid-template-columns: repeat(4, minmax(0,1fr));
   }
 
-  @media (max-width: 430px){
-    .tabs{
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2x2 on phone */
-    }
+  /* phone: 2x2 so it fills the first row first */
+  @media (max-width: 520px){
+    .selector{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   }
 
-  .tab{
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:14px;
-    padding:8px 10px;
-    background:rgba(0,0,0,.12);
+  .selBtn{
+    width:100%;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:10px;
+    gap:8px;
+    padding:10px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.12);
+    color:rgba(255,255,255,.88);
     cursor:pointer;
-    user-select:none;
+    text-align:left;
     min-width:0;
   }
 
-  .tabLeft{
+  .selLeft{
     display:flex;
     align-items:center;
     gap:10px;
     min-width:0;
   }
 
-  .tabDot{
+  .selDot{
     width:10px;height:10px;border-radius:50%;
-    flex:0 0 auto;
     box-shadow:0 0 0 4px rgba(255,255,255,.08);
+    flex:0 0 auto;
   }
 
-  .tabName{
+  .selName{
     font-family:var(--mono);
     font-size:11px;
-    color:rgba(255,255,255,.88);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
 
-  .tabCount{
+  .selCount{
     font-family:var(--mono);
-    font-size:10px;
-    padding:5px 9px;
+    font-size:11px;
+    padding:4px 8px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.18);
-    color:rgba(255,255,255,.78);
+    color:rgba(255,255,255,.75);
     white-space:nowrap;
-    min-width:54px;
-    text-align:center;
     flex:0 0 auto;
   }
 
-  /* ACTIVE tab glow (only on title/tab, not items) */
-  @keyframes tabPulse {
-    0%   { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
-    50%  { box-shadow: 0 0 0 6px var(--pulseRing), 0 0 28px var(--pulseGlow); }
-    100% { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 0 rgba(0,0,0,0); }
+  /* active glow ONLY on the top pills (no lines) */
+  .selBtn.active{
+    border-color: rgba(255,255,255,.14);
+    box-shadow: 0 0 0 2px rgba(255,255,255,.03), 0 0 0 6px var(--glow, rgba(255,255,255,.06));
   }
 
-  .tab.active{
-    border-color: rgba(255,255,255,.16);
-    animation: tabPulse 1.8s ease-in-out infinite;
-  }
-
-  /* -------- GROUP CARD (same style as before) -------- */
+  /* --- MAIN GROUP CARD --- */
   .group{
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
@@ -153,38 +145,29 @@
 
   .groupHead{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     justify-content:space-between;
     gap:10px;
-    padding:10px 10px;
-    position:relative;
+    padding:10px;
+    /* IMPORTANT: no “growing line” under the title */
     border-bottom:1px solid rgba(255,255,255,.08);
   }
 
   .headLeft{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap:10px;
     min-width:0;
   }
 
-  .badge{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:5px 9px;
-    border-radius:999px;
-    font-family:var(--mono);
-    font-size:10px;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.18);
-    white-space:nowrap;
+  .badgeDot{
+    width:10px;height:10px;border-radius:50%;
+    margin-top:2px;
+    box-shadow:0 0 0 4px rgba(255,255,255,.08);
+    flex:0 0 auto;
   }
 
-  .badgeDot{
-    width:8px;height:8px;border-radius:50%;
-    box-shadow:0 0 0 4px rgba(255,255,255,.08);
-  }
+  .titleWrap{ min-width:0; }
 
   .groupTitle{
     font-size:12px;
@@ -201,23 +184,40 @@
     margin-top:2px;
   }
 
-  .items{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
+  .countPill{
+    font-family:var(--mono);
+    font-size:10px;
+    padding:5px 9px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.18);
+    color:rgba(255,255,255,.78);
+    white-space:nowrap;
+    min-width:54px;
+    text-align:center;
+    flex:0 0 auto;
+  }
+
+  /* glow ONLY around the header box, not items */
+  .group.glow .groupHead{
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.03), 0 0 0 6px var(--glow, rgba(255,255,255,.06));
+  }
+
+  .groupBody{
     padding:10px;
   }
+
+  .items{ display:flex; flex-direction:column; gap:8px; }
 
   .item{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:10px;
-    padding:8px;
+    padding:10px;
     border-radius:12px;
     border:1px solid rgba(255,255,255,.08);
     background:rgba(0,0,0,.10);
-    position:relative;
   }
 
   .itemLeft{
@@ -228,8 +228,8 @@
   }
 
   .check{
-    width:20px;height:20px;
-    border-radius:7px;
+    width:22px;height:22px;
+    border-radius:8px;
     border:1px solid rgba(255,255,255,.16);
     background:rgba(0,0,0,.18);
     display:grid;
@@ -237,13 +237,11 @@
     cursor:pointer;
     flex:0 0 auto;
     transition:transform 160ms ease,border-color 200ms ease,background 200ms ease,box-shadow 200ms ease;
-    position:relative;
-    overflow:visible;
   }
   .check:active{ transform:scale(.96); }
 
   .tick{
-    width:9px;height:6px;
+    width:10px;height:7px;
     border-left:2px solid transparent;
     border-bottom:2px solid transparent;
     transform:rotate(-45deg);
@@ -265,13 +263,13 @@
     font-size:10px;
     color:var(--muted);
     white-space:nowrap;
+    flex:0 0 auto;
   }
 
   .done .check{
     background:rgba(40,230,165,.12);
     border-color:rgba(40,230,165,.35);
     box-shadow:0 0 0 4px rgba(40,230,165,.08);
-    transform:scale(1.02);
   }
   .done .tick{
     border-left-color:rgba(40,230,165,.95);
@@ -285,26 +283,13 @@
     text-decoration-color:rgba(255,255,255,.24);
   }
 
-  @keyframes checkBurst {
-    0%   { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 0 rgba(40,230,165,0); }
-    20%  { box-shadow: 0 0 0 6px rgba(40,230,165,.14), 0 0 18px rgba(40,230,165,.22); }
-    60%  { box-shadow: 0 0 0 10px rgba(40,230,165,.08), 0 0 24px rgba(40,230,165,.14); }
-    100% { box-shadow: 0 0 0 0 rgba(40,230,165,0), 0 0 0 rgba(40,230,165,0); }
-  }
-  .burst .check{ animation: checkBurst 1.5s ease-out; }
-
   .footer{
     padding:8px 10px 10px;
     border-top:1px solid rgba(255,255,255,.07);
-    color:var(--muted);
-    font-size:10px;
     display:flex;
     justify-content:flex-end;
     align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
   }
-  #footLeft{ display:none !important; }
 
   .btn{
     font-family:var(--mono);
@@ -320,7 +305,8 @@
   @media (max-width: 430px){
     body{ padding:6px; }
     .content{ padding:8px; }
-    .chip{ font-size:11px; padding:6px 12px; min-width:180px; }
+    .chip{ font-size:11px; padding:6px 12px; min-width:160px; }
+    .selBtn{ padding:10px; }
   }
 </style>
 </head>
@@ -333,12 +319,10 @@
     </div>
 
     <div class="content">
-      <div id="tabs" class="tabs"></div>
       <div id="root"></div>
     </div>
 
     <div class="footer">
-      <div id="footLeft"></div>
       <button class="btn" id="resetBtn" type="button">Reset</button>
     </div>
   </div>
@@ -347,16 +331,16 @@
 <script>
   const TZ = "America/Toronto";
 
-  const WEEKDAY_GROUPS = [
+  const GROUPS = [
     {
       id: "lock",
       short: "Lock",
       color: "#FF4D6D",
       title: "NO-TRADE LOCK (POST-KILLZONE)",
-      items: [{ id:"lock_on", text:"Trading locked", meta:"1" }],
+      items: [{ id:"lock_on", text:"Trading locked", meta:"1" }]
     },
     {
-      id: "premkt",
+      id: "pre",
       short: "Pre",
       color: "#3D78FF",
       title: "NY PRE-MARKET (ICT BIAS)",
@@ -366,10 +350,10 @@
         { id:"asia", text:"Asia + London high/low", meta:"3" },
         { id:"pd",   text:"HTF PD arrays", meta:"4" },
         { id:"one",  text:"One ICT model only", meta:"5" }
-      ],
+      ]
     },
     {
-      id: "killzone",
+      id: "kz",
       short: "KZ",
       color: "#28E6A5",
       title: "NY KILLZONE TRADING",
@@ -378,7 +362,7 @@
         { id:"confirm", text:"Wait for confirmation", meta:"1" },
         { id:"entry",   text:"Execute entry", meta:"2" },
         { id:"manage",  text:"Manage trade", meta:"3" }
-      ],
+      ]
     },
     {
       id: "post",
@@ -390,52 +374,77 @@
         { id:"ss",      text:"Chart screenshot", meta:"2" },
         { id:"emotion", text:"Emotion check", meta:"3" },
         { id:"rules",   text:"Followed ICT rules?", meta:"4" }
-      ],
+      ]
     }
   ];
 
   const root = document.getElementById("root");
-  const tabs = document.getElementById("tabs");
   const topChip = document.getElementById("topChip");
   const resetBtn = document.getElementById("resetBtn");
 
   // ---- Time helpers (ET) ----
-  function getHMInTZ(tz, d=new Date()){
+  function dtParts(tz, d=new Date()){
     const parts = new Intl.DateTimeFormat("en-GB", {
       timeZone: tz,
       hour12:false,
+      weekday:"short",
       hour:"2-digit",
       minute:"2-digit"
     }).formatToParts(d);
-    const get = (t)=>parts.find(p=>p.type===t)?.value ?? "00";
-    return { hh: get("hour"), mm: get("minute") };
+
+    const get = (t)=>parts.find(p=>p.type===t)?.value;
+    return {
+      wd: get("weekday"), // Mon/Tue/...
+      hh: get("hour"),
+      mm: get("minute")
+    };
   }
 
   function minsInTZ(tz){
-    const p = getHMInTZ(tz);
+    const p = dtParts(tz);
     return Number(p.hh)*60 + Number(p.mm);
   }
 
-  function weekdayShort(tz, d=new Date()){
-    return new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday:"short" }).format(d);
+  function ymd(tz, d=new Date()){
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
+    }).formatToParts(d);
+    const get = (t)=>parts.find(p=>p.type===t)?.value;
+    return `${get("year")}-${get("month")}-${get("day")}`;
   }
 
-  function isWeekendMode(tz){
-    // Weekend mode: Fri 6:00 PM ET -> Sun 6:00 PM ET
-    const wd = weekdayShort(tz);
-    const now = minsInTZ(tz);
-    const FRI_6PM = 18*60;
-    const SUN_6PM = 18*60;
+  // Weekend for futures: Fri 6:00 PM ET → Sun 6:00 PM ET
+  function isMarketWeekend(){
+    const p = dtParts(TZ);
+    const now = Number(p.hh)*60 + Number(p.mm);
+    const wd = p.wd; // "Fri", "Sat", "Sun", ...
 
     if(wd === "Sat") return true;
-    if(wd === "Fri" && now >= FRI_6PM) return true;
-    if(wd === "Sun" && now < SUN_6PM) return true;
+    if(wd === "Sun") return now < (18*60);         // before 6pm
+    if(wd === "Fri") return now >= (18*60);        // from 6pm
     return false;
   }
 
-  // ---- Robust storage (same as your code) ----
-  const memStore = new Map();
+  // Auto selection windows (ET):
+  // Lock: 20:00 → 08:30
+  // Pre : 08:30 → 09:30
+  // KZ  : 09:30 → 11:00
+  // Post: 11:00 → 20:00
+  function autoGroupId(){
+    const now = minsInTZ(TZ);
+    const t0830 = 8*60 + 30;
+    const t0930 = 9*60 + 30;
+    const t1100 = 11*60;
+    const t2000 = 20*60;
 
+    // Lock spans overnight
+    if(now >= t2000 || now < t0830) return "lock";
+    if(now >= t0830 && now < t0930) return "pre";
+    if(now >= t0930 && now < t1100) return "kz";
+    return "post";
+  }
+
+  // ---- Storage (localStorage) ----
   function canUseLocalStorage(){
     try{
       const k="__t"; localStorage.setItem(k,"1"); localStorage.removeItem(k);
@@ -444,184 +453,59 @@
   }
   const LS_OK = canUseLocalStorage();
 
-  const IDB_DB = "crtv_checklist_db";
-  const IDB_STORE = "kv";
-
-  function idbOpen(){
-    return new Promise((resolve)=>{
-      if(!("indexedDB" in window)) return resolve(null);
-      const req = indexedDB.open(IDB_DB, 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    });
-  }
-
-  async function idbGet(db, key){
-    if(!db) return null;
-    return new Promise((resolve)=>{
-      const tx = db.transaction(IDB_STORE, "readonly");
-      const st = tx.objectStore(IDB_STORE);
-      const r = st.get(key);
-      r.onsuccess = ()=> resolve(r.result ?? null);
-      r.onerror = ()=> resolve(null);
-    });
-  }
-
-  async function idbSet(db, key, val){
-    if(!db) return false;
-    return new Promise((resolve)=>{
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      const st = tx.objectStore(IDB_STORE);
-      const r = st.put(val, key);
-      r.onsuccess = ()=> resolve(true);
-      r.onerror = ()=> resolve(false);
-    });
-  }
-
-  async function idbDel(db, key){
-    if(!db) return false;
-    return new Promise((resolve)=>{
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      const st = tx.objectStore(IDB_STORE);
-      const r = st.delete(key);
-      r.onsuccess = ()=> resolve(true);
-      r.onerror = ()=> resolve(false);
-    });
-  }
-
-  let idbDbPromise = idbOpen();
-
-  async function storeGet(key, fallback){
-    if(LS_OK){
-      try{
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      }catch{}
-    }
+  function storeGet(key, fallback){
+    if(!LS_OK) return fallback;
     try{
-      const db = await idbDbPromise;
-      const raw = await idbGet(db, key);
+      const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
-    }catch{}
-    try{
-      const raw = memStore.get(key);
-      return raw ? JSON.parse(raw) : fallback;
-    }catch{}
-    return fallback;
+    }catch{ return fallback; }
+  }
+  function storeSet(key, val){
+    if(!LS_OK) return;
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch{}
+  }
+  function storeDel(key){
+    if(!LS_OK) return;
+    try{ localStorage.removeItem(key); }catch{}
   }
 
-  async function storeSet(key, val){
-    const raw = JSON.stringify(val);
-    if(LS_OK){
-      try{ localStorage.setItem(key, raw); return; }catch{}
-    }
-    try{
-      const db = await idbDbPromise;
-      const ok = await idbSet(db, key, raw);
-      if(ok) return;
-    }catch{}
-    memStore.set(key, raw);
-  }
-
-  async function storeDel(key){
-    if(LS_OK){
-      try{ localStorage.removeItem(key); }catch{}
-    }
-    try{
-      const db = await idbDbPromise;
-      await idbDel(db, key);
-    }catch{}
-    memStore.delete(key);
-  }
-
-  // ---- Storage keys based on ET day ----
-  function fmtParts(tz, d=new Date()){
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit"
-    }).formatToParts(d);
-    const get = (t)=>parts.find(p=>p.type===t)?.value;
-    return { y:get("year"), m:get("month"), day:get("day") };
-  }
-  function ymd(tz, d=new Date()){
-    const p = fmtParts(tz, d);
-    return `${p.y}-${p.m}-${p.day}`;
-  }
-
-  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
+  // keys based on ET day
   const stampKey = "chk_last_seen_day_et";
+  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
+  function uiKey(){ return `chk_ui_${ymd(TZ)}`; } // selected tab per day
 
-  async function ensureDailyReset(){
+  function ensureDailyReset(){
     const today = ymd(TZ);
-    const last = await storeGet(stampKey, null);
+    const last = storeGet(stampKey, null);
     if(last !== today){
-      await storeSet(stampKey, today);
+      storeSet(stampKey, today);
+      // new day: keep fresh keys automatically; nothing else required
     }
   }
 
-  async function loadDayState(){ return await storeGet(dayKey(), {}); }
-  async function saveDayState(state){ await storeSet(dayKey(), state); }
+  function loadState(){ return storeGet(dayKey(), {}); }
+  function saveState(state){ storeSet(dayKey(), state); }
 
-  // ---- AUTO GROUP SWITCH (by time) ----
-  const LOCK_START = 20*60;     // 8:00 PM
-  const PRE_OPEN   = 8*60 + 30; // 8:30 AM
-  const KZ_OPEN    = 9*60 + 30; // 9:30 AM
-  const KZ_CLOSE   = 11*60;     // 11:00 AM
+  function loadUI(){ return storeGet(uiKey(), { selected: null, lastAuto: null }); }
+  function saveUI(ui){ storeSet(uiKey(), ui); }
 
-  function autoGroupId(){
-    const now = minsInTZ(TZ);
-
-    // Lock: 8:00 PM -> 8:30 AM (overnight)
-    if(now >= LOCK_START || now < PRE_OPEN) return "lock";
-
-    // Pre: 8:30 -> 9:30
-    if(now >= PRE_OPEN && now < KZ_OPEN) return "premkt";
-
-    // KZ: 9:30 -> 11:00
-    if(now >= KZ_OPEN && now < KZ_CLOSE) return "killzone";
-
-    // Post: 11:00 -> 8:00 PM
-    return "post";
-  }
-
-  // Manual override window so user can view other tabs without instant switch
-  let manualOverrideUntil = 0;
-  let activeGroup = "premkt";
-
-  // ---- UI helpers ----
-  function hexToRgba(hex, a){
+  function hexToGlow(hex){
+    // soft glow, same vibe as your sessions
     const c = hex.replace("#","").trim();
     const r = parseInt(c.substring(0,2),16);
     const g = parseInt(c.substring(2,4),16);
     const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},${a})`;
+    return `rgba(${r},${g},${b},.16)`;
   }
 
-  function tabPulseVars(color){
-    return {
-      ring: hexToRgba(color, 0.14),
-      glow: hexToRgba(color, 0.18)
-    };
+  function countDone(state, group){
+    let d=0;
+    for(const it of group.items) if(state[it.id]) d++;
+    return d;
   }
 
-  function countDone(group, state){
-    const done = group.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
-    return { done, total: group.items.length };
-  }
-
-  function updateTopChip(){
-    const p = getHMInTZ(TZ);
-    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
-  }
-
-  // ---- Weekend UI (unchanged) ----
   function renderWeekend(){
-    topChip.textContent = "Weekend";
-
-    tabs.innerHTML = "";
+    topChip.textContent = `ET ${dtParts(TZ).hh}:${dtParts(TZ).mm} • Weekend`;
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -635,7 +519,7 @@
           <div style="font-weight:800;font-size:12px;letter-spacing:.2px;">Weekend Review</div>
           <div style="margin-top:4px;color:rgba(255,255,255,.62);font-size:10px;">Plan + improve for next week</div>
         </div>
-        <div class="tabCount">OFF</div>
+        <div class="countPill">OFF</div>
       </div>
       <div style="margin-top:10px;color:rgba(255,255,255,.78);font-size:11px;line-height:1.35;">
         • 1 best trade + why it worked<br/>
@@ -648,79 +532,96 @@
     root.appendChild(card);
   }
 
-  // ---- Render tabs + active group ----
-  async function renderWeekday(){
-    const state = await loadDayState();
+  function renderWeekday(){
+    const p = dtParts(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
 
-    // Tabs
-    tabs.innerHTML = "";
-    for(const g of WEEKDAY_GROUPS){
-      const { done, total } = countDone(g, state);
+    const state = loadState();
+    const ui = loadUI();
 
-      const tab = document.createElement("div");
-      tab.className = "tab" + (g.id === activeGroup ? " active" : "");
+    const auto = autoGroupId();
 
-      const vars = tabPulseVars(g.color);
-      tab.style.setProperty("--pulseRing", vars.ring);
-      tab.style.setProperty("--pulseGlow", vars.glow);
-
-      tab.innerHTML = `
-        <div class="tabLeft">
-          <div class="tabDot" style="background:${g.color};box-shadow:0 0 0 4px ${hexToRgba(g.color,0.12)};"></div>
-          <div class="tabName">${g.short}</div>
-        </div>
-        <div class="tabCount">${done}/${total}</div>
-      `;
-
-      tab.addEventListener("click", () => {
-        activeGroup = g.id;
-        manualOverrideUntil = Date.now() + 5 * 60 * 1000; // 5 min
-        render(); // rerender
-      });
-
-      tabs.appendChild(tab);
+    // auto-switch ONLY if user hasn't manually picked something recently
+    // rule: if ui.selected is null OR ui.lastAuto !== auto -> switch to auto,
+    // but if user selected manually, keep it until time window changes to a new one.
+    let selected = ui.selected;
+    if(!selected){
+      selected = auto;
+      ui.selected = auto;
+      ui.lastAuto = auto;
+      saveUI(ui);
+    }else{
+      if(ui.lastAuto !== auto){
+        // time window changed -> follow time automatically
+        selected = auto;
+        ui.selected = auto;
+        ui.lastAuto = auto;
+        saveUI(ui);
+      }
     }
 
-    // Active group
-    const g = WEEKDAY_GROUPS.find(x => x.id === activeGroup) || WEEKDAY_GROUPS[0];
-    const { done, total } = countDone(g, state);
+    const wrap = document.createElement("div");
 
-    const group = document.createElement("div");
-    group.className = "group";
+    // top selector
+    const selector = document.createElement("div");
+    selector.className = "selector";
 
-    // Glow on section header only
-    const vars = tabPulseVars(g.color);
-    const headGlowStyle = `
-      animation: tabPulse 1.8s ease-in-out infinite;
-      --pulseRing:${vars.ring};
-      --pulseGlow:${vars.glow};
-      border-color: rgba(255,255,255,.16);
-    `;
+    for(const g of GROUPS){
+      const done = countDone(state, g);
+      const total = g.items.length;
 
-    const head = document.createElement("div");
-    head.className = "groupHead";
-    head.style.cssText = headGlowStyle;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "selBtn" + (g.id === selected ? " active" : "");
+      b.style.setProperty("--glow", hexToGlow(g.color));
 
-    head.innerHTML = `
-      <div class="headLeft">
-        <div class="badge">
-          <div class="badgeDot" style="background:${g.color};box-shadow:0 0 0 4px ${hexToRgba(g.color,0.12)};"></div>
+      b.innerHTML = `
+        <div class="selLeft">
+          <div class="selDot" style="background:${g.color};box-shadow:0 0 0 4px ${hexToGlow(g.color)}"></div>
+          <div class="selName">${g.short}</div>
         </div>
-        <div style="min-width:0;">
-          <div class="groupTitle">${g.title}</div>
-          ${g.subtitle ? `<div class="sub">${g.subtitle}</div>` : ``}
+        <div class="selCount">${done}/${total}</div>
+      `;
+
+      b.addEventListener("click", () => {
+        const ui2 = loadUI();
+        ui2.selected = g.id; // manual select allowed anytime
+        saveUI(ui2);
+        render();
+      });
+
+      selector.appendChild(b);
+    }
+
+    // selected group card
+    const gSel = GROUPS.find(x=>x.id===selected) || GROUPS[0];
+    const doneSel = countDone(state, gSel);
+
+    const card = document.createElement("div");
+    card.className = "group glow";
+    card.style.setProperty("--glow", hexToGlow(gSel.color));
+
+    card.innerHTML = `
+      <div class="groupHead">
+        <div class="headLeft">
+          <div class="badgeDot" style="background:${gSel.color};box-shadow:0 0 0 4px ${hexToGlow(gSel.color)}"></div>
+          <div class="titleWrap">
+            <div class="groupTitle">${gSel.title}</div>
+            ${gSel.subtitle ? `<div class="sub">${gSel.subtitle}</div>` : ``}
+          </div>
         </div>
+        <div class="countPill">${doneSel}/${gSel.items.length}</div>
       </div>
-      <div class="tabCount">${done}/${total}</div>
+      <div class="groupBody">
+        <div class="items" id="items"></div>
+      </div>
     `;
 
-    const itemsWrap = document.createElement("div");
-    itemsWrap.className = "items";
+    const itemsEl = card.querySelector("#items");
 
-    for(const it of g.items){
+    for(const it of gSel.items){
       const row = document.createElement("div");
       row.className = "item" + (state[it.id] ? " done" : "");
-
       row.innerHTML = `
         <div class="itemLeft">
           <button class="check" type="button" aria-label="Toggle">
@@ -732,60 +633,40 @@
       `;
       row.querySelector(".txt").textContent = it.text;
 
-      row.querySelector(".check").addEventListener("click", async () => {
+      row.querySelector(".check").addEventListener("click", () => {
         state[it.id] = !state[it.id];
-        await saveDayState(state);
-
-        row.classList.remove("burst");
-        void row.offsetWidth;
-        row.classList.add("burst");
-        setTimeout(() => row.classList.remove("burst"), 1500);
-
-        await render();
+        saveState(state);
+        render();
       });
 
-      itemsWrap.appendChild(row);
+      itemsEl.appendChild(row);
     }
 
-    group.innerHTML = "";
-    group.appendChild(head);
-    group.appendChild(itemsWrap);
+    wrap.appendChild(selector);
+    wrap.appendChild(card);
 
     root.innerHTML = "";
-    root.appendChild(group);
+    root.appendChild(wrap);
   }
 
-  // ---- Main render ----
-  async function render(){
-    await ensureDailyReset();
+  function render(){
+    ensureDailyReset();
 
-    // Weekend window (Fri 6pm -> Sun 6pm)
-    if(isWeekendMode(TZ)){
+    if(isMarketWeekend()){
       renderWeekend();
-      return;
+    }else{
+      renderWeekday();
     }
-
-    // Auto switch by time (but allow manual for a bit)
-    const now = Date.now();
-    if(now > manualOverrideUntil){
-      activeGroup = autoGroupId();
-    }
-
-    updateTopChip();
-    await renderWeekday();
   }
 
-  resetBtn.addEventListener("click", async () => {
-    await storeDel(dayKey());
-    await render();
+  resetBtn.addEventListener("click", () => {
+    storeDel(dayKey());
+    storeDel(uiKey());
+    render();
   });
 
-  // Initial
   render();
-
-  // Keep time switching accurate
   setInterval(render, 15000);
-  setInterval(updateTopChip, 1000);
 </script>
 </body>
 </html>
