@@ -75,7 +75,7 @@
     margin-bottom:8px;
   }
 
-  /* phone: must fill first row then second row (2x2) */
+  /* phone: fill first row then second row (2x2) */
   @media (max-width: 430px){
     .tabs{ grid-template-columns: 1fr 1fr; }
   }
@@ -137,57 +137,7 @@
     background: rgba(255,255,255,.05);
   }
 
-  /* ===== Real-time progress outline (ONLY on tabs) =====
-     - Smooth, no loop
-     - Uses CSS variable --p (0..1) and --c (color)
-  */
-  .tab.activeTime{
-    --p: 0;
-    --c: rgba(255,255,255,.35);
-  }
-
-  .tab.activeTime::before{
-    content:"";
-    position:absolute;
-    inset:-1px;
-    border-radius:16px;
-    padding:2px;
-    background:
-      conic-gradient(from 270deg,
-        rgba(255,255,255,.10) 0turn,
-        rgba(255,255,255,.10) calc(var(--p) * 1turn),
-        rgba(255,255,255,0) calc(var(--p) * 1turn),
-        rgba(255,255,255,0) 1turn
-      );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    pointer-events:none;
-  }
-
-  .tab.activeTime::after{
-    content:"";
-    position:absolute;
-    inset:-1px;
-    border-radius:16px;
-    padding:2px;
-    background:
-      conic-gradient(from 270deg,
-        color-mix(in srgb, var(--c) 90%, transparent) 0turn,
-        color-mix(in srgb, var(--c) 90%, transparent) calc(var(--p) * 1turn),
-        transparent calc(var(--p) * 1turn),
-        transparent 1turn
-      );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    filter: blur(.15px);
-    pointer-events:none;
-  }
+  /* (REMOVED) time-growing outline completely */
 
   /* ===== SINGLE GROUP (shown under tabs) ===== */
   .group{
@@ -205,7 +155,7 @@
     padding:10px 10px;
     position:relative;
 
-    /* IMPORTANT: no colored line under title */
+    /* no colored line under title */
     border-bottom:1px solid rgba(255,255,255,.08);
     background: transparent;
   }
@@ -414,7 +364,6 @@
 <script>
   const TZ = "America/Toronto";
 
-  // ===== Groups (same content you had) =====
   const GROUPS = [
     {
       id: "lock",
@@ -469,7 +418,6 @@
   const topChip = document.getElementById("topChip");
   const resetBtn = document.getElementById("resetBtn");
 
-  // ===== Time helpers (ET) =====
   function getPartsInTZ(tz, date=new Date()){
     const parts = new Intl.DateTimeFormat("en-GB", {
       timeZone: tz,
@@ -504,9 +452,9 @@
     return `${p.y}-${p.m}-${p.day}`;
   }
 
-  // ===== Weekend market window: Fri 6PM -> Sun 6PM (ET) =====
+  // Weekend market window: Fri 6PM -> Sun 6PM (ET)
   function isWeekendMarketClosed(){
-    const wd = weekdayShort(TZ); // Fri/Sat/Sun/etc
+    const wd = weekdayShort(TZ);
     const now = minsInTZ(TZ);
     const cutoff = 18*60; // 6:00 PM
 
@@ -516,7 +464,7 @@
     return false;
   }
 
-  // ===== Session timing (ET) =====
+  // Session timing (ET)
   const T = {
     LOCK_START: 20*60,   // 8:00 PM
     PRE_OPEN:   8*60+30, // 8:30 AM
@@ -527,43 +475,13 @@
 
   function getAutoSessionKey(){
     const now = minsInTZ(TZ);
-    // Lock = 8:00 PM -> 8:30 AM (overnight)
     if(now >= T.LOCK_START || now < T.PRE_OPEN) return "lock";
-    // Pre = 8:30 -> 9:30
     if(now >= T.PRE_OPEN && now < T.KZ_OPEN) return "premkt";
-    // KZ = 9:30 -> 11:00
     if(now >= T.KZ_OPEN && now < T.KZ_CLOSE) return "killzone";
-    // Post = 11:00 -> 8:00 PM
     return "post";
   }
 
-  function sessionProgress(key){
-    const now = minsInTZ(TZ);
-
-    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
-
-    if(key === "premkt"){
-      const dur = (T.KZ_OPEN - T.PRE_OPEN);
-      return clamp01((now - T.PRE_OPEN)/dur);
-    }
-    if(key === "killzone"){
-      const dur = (T.KZ_CLOSE - T.KZ_OPEN);
-      return clamp01((now - T.KZ_OPEN)/dur);
-    }
-    if(key === "post"){
-      const dur = (T.POST_END - T.KZ_CLOSE);
-      return clamp01((now - T.KZ_CLOSE)/dur);
-    }
-    // lock crosses midnight: 20:00 -> 08:30
-    // treat timeline length = (24:00-20:00) + 08:30
-    const dur = (24*60 - T.LOCK_START) + T.PRE_OPEN; // 240 + 510 = 750
-    let elapsed;
-    if(now >= T.LOCK_START) elapsed = now - T.LOCK_START;
-    else elapsed = (24*60 - T.LOCK_START) + now;
-    return clamp01(elapsed/dur);
-  }
-
-  // ===== Storage (same robust approach) =====
+  // Storage
   const memStore = new Map();
 
   function canUseLocalStorage(){
@@ -683,9 +601,18 @@
   async function loadDayState(){ return await storeGet(dayKey(), {}); }
   async function saveDayState(state){ await storeSet(dayKey(), state); }
 
-  // ===== Weekend UI (unchanged) =====
+  function hexToRgba(hex, a){
+    const c = hex.replace("#","").trim();
+    const r = parseInt(c.substring(0,2),16);
+    const g = parseInt(c.substring(2,4),16);
+    const b = parseInt(c.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // Weekend UI (unchanged)
   function renderWeekend(){
-    topChip.textContent = `ET ${getPartsInTZ(TZ).hh}:${getPartsInTZ(TZ).mm} • Weekend`;
+    const p = getPartsInTZ(TZ);
+    topChip.textContent = `ET ${p.hh}:${p.mm} • Weekend`;
 
     const card = document.createElement("div");
     card.style.border = "1px solid rgba(255,255,255,.10)";
@@ -721,17 +648,8 @@
     root.appendChild(card);
   }
 
-  // ===== Main render (tabs + single group) =====
-  let selectedGroupId = null; // manual selection
-  let lastAutoGroupId = null; // detect change
-
-  function hexToRgba(hex, a){
-    const c = hex.replace("#","").trim();
-    const r = parseInt(c.substring(0,2),16);
-    const g = parseInt(c.substring(2,4),16);
-    const b = parseInt(c.substring(4,6),16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
+  let selectedGroupId = null;
+  let lastAutoGroupId = null;
 
   async function renderWeekday(){
     const p = getPartsInTZ(TZ);
@@ -739,16 +657,13 @@
 
     const state = await loadDayState();
 
-    // auto session
     const autoId = getAutoSessionKey();
     if(lastAutoGroupId !== autoId){
-      // auto-changed -> if user never selected, follow auto
       lastAutoGroupId = autoId;
       if(!selectedGroupId) selectedGroupId = autoId;
     }
     if(!selectedGroupId) selectedGroupId = autoId;
 
-    // build tabs
     const tabs = document.createElement("div");
     tabs.className = "tabs";
 
@@ -771,34 +686,22 @@
         <div class="tabCount">${done}/${total}</div>
       `;
 
-      // manual selected
       if(selectedGroupId === g.id) tab.classList.add("selected");
-
-      // active time glow (ONLY top tabs)
-      if(autoId === g.id){
-        tab.classList.add("activeTime");
-        tab.style.setProperty("--c", g.color);
-        tab.style.setProperty("--p", String(sessionProgress(g.id)));
-      }
 
       tab.addEventListener("click", async () => {
         selectedGroupId = g.id;
-        await render(); // rerender to update selected border
+        await render();
       });
 
       tabs.appendChild(tab);
     }
 
-    // show single group selected
     const g = GROUPS.find(x=>x.id === selectedGroupId) || GROUPS[0];
     const doneInGroup = g.items.reduce((c,it)=>c + (state[it.id]?1:0), 0);
     const totalInGroup = g.items.length;
 
     const group = document.createElement("div");
     group.className = "group";
-
-    // NOTE: No colored line under the full title.
-    // Only neutral border-bottom is used in CSS.
 
     const head = document.createElement("div");
     head.className = "groupHead";
@@ -846,7 +749,6 @@
     head.appendChild(left);
     head.appendChild(right);
 
-    // group body
     const body = document.createElement("div");
     body.className = "groupBody";
 
@@ -876,7 +778,7 @@
         row.classList.add("burst");
         setTimeout(() => row.classList.remove("burst"), 1500);
 
-        await render(); // refresh counts + progress outline
+        await render();
       });
 
       list.appendChild(row);
@@ -886,7 +788,6 @@
     group.appendChild(head);
     group.appendChild(body);
 
-    // mount
     root.innerHTML = "";
     root.appendChild(tabs);
     root.appendChild(group);
@@ -904,17 +805,16 @@
 
   resetBtn.addEventListener("click", async () => {
     await storeDel(dayKey());
-    selectedGroupId = null; // let it auto-pick again after reset
+    selectedGroupId = null;
     await render();
   });
 
-  // Keep ET time + auto-switch + progress outline accurate
   render();
+
   setInterval(render, 15000);
+
   setInterval(() => {
     const p = getPartsInTZ(TZ);
-    // don’t rebuild UI every second, just update top chip quickly
-    // (render() still runs every 15s)
     if(!isWeekendMarketClosed()){
       topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
     }else{
