@@ -257,11 +257,12 @@
   }
   .check:active{ transform:scale(.96); }
 
+  /* ✅ ONLY CHANGE: tick centered better inside the box */
   .tick{
     width:9px;height:6px;
     border-left:2px solid transparent;
     border-bottom:2px solid transparent;
-    transform:rotate(-45deg);
+    transform: translateY(1px) translateX(-0.5px) rotate(-45deg);
     opacity:0;
     transition:opacity 160ms ease;
   }
@@ -345,7 +346,6 @@
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <!-- ✅ CHANGE: REMOVE ET TIME, KEEP ONLY CHECKLIST -->
       <div class="chip" id="topChip">Checklist</div>
     </div>
 
@@ -650,7 +650,6 @@
   let lastAutoGroupId = null;
 
   async function renderWeekday(){
-    // ✅ CHANGE: TOP CHIP ALWAYS "CHECKLIST" (NO TIME)
     topChip.textContent = "Checklist";
 
     const state = await loadDayState();
@@ -808,11 +807,7 @@
   });
 
   render();
-
   setInterval(render, 15000);
-
-  // ✅ CHANGE: remove the live clock updater completely (was only for ET time in top chip)
-  // (Nothing else changed)
 </script>
 </body>
 </html>
