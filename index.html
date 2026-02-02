@@ -12,10 +12,6 @@
     --muted:rgba(255,255,255,.62);
 
     --panelStroke:rgba(255,255,255,.08);
-    --stroke:rgba(255,255,255,.10);
-
-    --good:#28E6A5;
-    --bad:#FF4D6D;
 
     --radius:16px;
     --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
@@ -61,7 +57,7 @@
     border:1px solid rgba(255,255,255,.12);
     background:rgba(0,0,0,.22);
     white-space:nowrap;
-    min-width:140px;
+    min-width:160px;
     text-align:center;
   }
 
@@ -75,7 +71,6 @@
     grid-template-columns: repeat(4, minmax(0,1fr));
   }
 
-  /* phone: 2x2 so it fills the first row first */
   @media (max-width: 520px){
     .selector{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   }
@@ -130,10 +125,19 @@
     flex:0 0 auto;
   }
 
-  /* ACTIVE: small outline glow (NOT big glow) */
+  /* ACTIVE outline size stays EXACTLY as you like. */
   .selBtn.active{
     border-color: rgba(255,255,255,.14);
     box-shadow: 0 0 0 2px var(--glow, rgba(255,255,255,.08));
+  }
+
+  /* One-time smooth grow (no loop) */
+  .selBtn.animIn{
+    animation: outlinePop 280ms ease-out 1;
+  }
+  @keyframes outlinePop{
+    0%   { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+    100% { box-shadow: 0 0 0 2px var(--glow, rgba(255,255,255,.08)); }
   }
 
   /* --- MAIN GROUP CARD --- */
@@ -150,9 +154,7 @@
     justify-content:space-between;
     gap:10px;
     padding:10px;
-    /* REMOVED the line under title completely */
-    border-bottom:none;
-    transition: box-shadow 200ms ease, border-color 200ms ease;
+    border-bottom:none; /* keep clean */
   }
 
   .headLeft{
@@ -200,13 +202,25 @@
     flex:0 0 auto;
   }
 
-  /* glow ONLY as a small outline around the HEADER (no bar/line) */
+  /* small outline glow ONLY around the header */
   .group.glow .groupHead{
     box-shadow: 0 0 0 2px var(--glow, rgba(255,255,255,.08));
+    border-radius:14px; /* ensures glow is clean */
   }
 
+  /* ✅ REMOVE the “line” under the title (your arrow)
+     The line was visually happening at the boundary between head and body.
+     So we remove any “top edge” look by:
+     - no padding-top gap
+     - no background contrast edge
+     - no top border
+  */
   .groupBody{
     padding:10px;
+    padding-top:0;              /* key: flush under title */
+    border-top:none !important; /* hard kill */
+    box-shadow:none !important;
+    background:transparent;     /* prevents a seam */
   }
 
   .items{ display:flex; flex-direction:column; gap:8px; }
@@ -395,11 +409,7 @@
     }).formatToParts(d);
 
     const get = (t)=>parts.find(p=>p.type===t)?.value;
-    return {
-      wd: get("weekday"),
-      hh: get("hour"),
-      mm: get("minute")
-    };
+    return { wd:get("weekday"), hh:get("hour"), mm:get("minute") };
   }
 
   function minsInTZ(tz){
@@ -415,12 +425,11 @@
     return `${get("year")}-${get("month")}-${get("day")}`;
   }
 
-  // Weekend for futures: Fri 6:00 PM ET → Sun 6:00 PM ET
+  // Weekend (futures): Fri 6:00 PM ET → Sun 6:00 PM ET
   function isMarketWeekend(){
     const p = dtParts(TZ);
     const now = Number(p.hh)*60 + Number(p.mm);
     const wd = p.wd;
-
     if(wd === "Sat") return true;
     if(wd === "Sun") return now < (18*60);
     if(wd === "Fri") return now >= (18*60);
@@ -481,7 +490,8 @@
   function loadState(){ return storeGet(dayKey(), {}); }
   function saveState(state){ storeSet(dayKey(), state); }
 
-  function loadUI(){ return storeGet(uiKey(), { selected: null, lastAuto: null }); }
+  // UI: selected + lastAuto + userOverrideUntil
+  function loadUI(){ return storeGet(uiKey(), { selected: null, lastAuto: null, userOverrideUntil: 0 }); }
   function saveUI(ui){ storeSet(uiKey(), ui); }
 
   function hexToGlow(hex){
@@ -527,6 +537,13 @@
     root.appendChild(card);
   }
 
+  function setActiveAnim(btn){
+    // one-time animation each time selection changes
+    btn.classList.remove("animIn");
+    void btn.offsetWidth;
+    btn.classList.add("animIn");
+  }
+
   function renderWeekday(){
     const p = dtParts(TZ);
     topChip.textContent = `ET ${p.hh}:${p.mm} • Checklist`;
@@ -535,17 +552,26 @@
     const ui = loadUI();
 
     const auto = autoGroupId();
+    const nowMs = Date.now();
 
     let selected = ui.selected;
+
+    // If no selection OR auto changed and no recent manual override → auto switch
     if(!selected){
       selected = auto;
       ui.selected = auto;
       ui.lastAuto = auto;
       saveUI(ui);
     }else{
-      if(ui.lastAuto !== auto){
+      const autoChanged = (ui.lastAuto !== auto);
+      const allowAuto = nowMs > (ui.userOverrideUntil || 0);
+      if(autoChanged && allowAuto){
         selected = auto;
         ui.selected = auto;
+        ui.lastAuto = auto;
+        saveUI(ui);
+      }else{
+        // keep lastAuto updated even if user is overriding
         ui.lastAuto = auto;
         saveUI(ui);
       }
@@ -555,6 +581,8 @@
 
     const selector = document.createElement("div");
     selector.className = "selector";
+
+    let activeBtnRef = null;
 
     for(const g of GROUPS){
       const done = countDone(state, g);
@@ -573,9 +601,13 @@
         <div class="selCount">${done}/${total}</div>
       `;
 
+      if(g.id === selected) activeBtnRef = b;
+
       b.addEventListener("click", () => {
         const ui2 = loadUI();
         ui2.selected = g.id;
+        // Give user a short “manual override” window so it doesn’t instantly auto-switch
+        ui2.userOverrideUntil = Date.now() + 2 * 60 * 1000; // 2 minutes
         saveUI(ui2);
         render();
       });
@@ -636,12 +668,19 @@
 
     root.innerHTML = "";
     root.appendChild(wrap);
+
+    // ✅ apply one-time smooth grow to the active pill
+    if(activeBtnRef) setActiveAnim(activeBtnRef);
   }
 
   function render(){
     ensureDailyReset();
-    if(isMarketWeekend()) renderWeekend();
-    else renderWeekday();
+
+    if(isMarketWeekend()){
+      renderWeekend();
+      return;
+    }
+    renderWeekday();
   }
 
   resetBtn.addEventListener("click", () => {
@@ -650,7 +689,10 @@
     render();
   });
 
+  // Initial render
   render();
+
+  // Keep auto switch + weekend boundaries updated
   setInterval(render, 15000);
 </script>
 </body>
