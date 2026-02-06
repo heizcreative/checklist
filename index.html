@@ -257,7 +257,7 @@
   }
   .check:active{ transform:scale(.96); }
 
-  /* ✅ ONLY CHANGE: tick centered better inside the box */
+  /* tick centered better inside the box */
   .tick{
     width:9px;height:6px;
     border-left:2px solid transparent;
@@ -654,10 +654,11 @@
 
     const state = await loadDayState();
 
+    // ✅ LIVE AUTO SWITCH (switch when time window changes)
     const autoId = getAutoSessionKey();
     if(lastAutoGroupId !== autoId){
       lastAutoGroupId = autoId;
-      if(!selectedGroupId) selectedGroupId = autoId;
+      selectedGroupId = autoId;
     }
     if(!selectedGroupId) selectedGroupId = autoId;
 
@@ -790,13 +791,18 @@
     root.appendChild(group);
   }
 
+  let lastMode = null;
+  let lastAutoKey = null;
+
   async function render(){
     await ensureDailyStamp();
 
     if(isWeekendMarketClosed()){
+      lastMode = "weekend";
       renderWeekend();
       return;
     }
+    lastMode = "weekday";
     await renderWeekday();
   }
 
@@ -807,6 +813,26 @@
   });
 
   render();
+
+  // ✅ LIVE AUTOMATION (no manual refresh needed)
+  // checks every second, but only re-renders when weekend/session actually changes
+  setInterval(async () => {
+    const weekendNow = isWeekendMarketClosed();
+    const modeNow = weekendNow ? "weekend" : "weekday";
+    const autoNow = weekendNow ? null : getAutoSessionKey();
+
+    const modeChanged = (lastMode !== modeNow);
+    const sessionChanged = (!weekendNow && lastAutoKey !== autoNow);
+
+    if(modeChanged || sessionChanged){
+      lastAutoKey = autoNow;
+      await render();
+    }else{
+      lastAutoKey = autoNow;
+    }
+  }, 1000);
+
+  // keep your existing refresh too
   setInterval(render, 15000);
 </script>
 </body>
