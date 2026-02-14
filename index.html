@@ -451,15 +451,16 @@
     return `${p.y}-${p.m}-${p.day}`;
   }
 
-  // Weekend market window: Fri 6PM -> Sun 6PM (ET)
+  // Weekend market window: Fri 5PM -> Sun 6PM (ET)
   function isWeekendMarketClosed(){
     const wd = weekdayShort(TZ);
     const now = minsInTZ(TZ);
-    const cutoff = 18*60; // 6:00 PM
+    const friCutoff = 17*60; // ✅ 5:00 PM Friday
+    const sunCutoff = 18*60; // ✅ 6:00 PM Sunday
 
-    if(wd === "Fri" && now >= cutoff) return true;
+    if(wd === "Fri" && now >= friCutoff) return true;
     if(wd === "Sat") return true;
-    if(wd === "Sun" && now < cutoff) return true;
+    if(wd === "Sun" && now < sunCutoff) return true;
     return false;
   }
 
@@ -654,7 +655,7 @@
 
     const state = await loadDayState();
 
-    // ✅ LIVE AUTO SWITCH (switch when time window changes)
+    // LIVE AUTO SWITCH
     const autoId = getAutoSessionKey();
     if(lastAutoGroupId !== autoId){
       lastAutoGroupId = autoId;
@@ -814,8 +815,7 @@
 
   render();
 
-  // ✅ LIVE AUTOMATION (no manual refresh needed)
-  // checks every second, but only re-renders when weekend/session actually changes
+  // LIVE AUTOMATION
   setInterval(async () => {
     const weekendNow = isWeekendMarketClosed();
     const modeNow = weekendNow ? "weekend" : "weekday";
@@ -832,7 +832,6 @@
     }
   }, 1000);
 
-  // keep your existing refresh too
   setInterval(render, 15000);
 </script>
 </body>
