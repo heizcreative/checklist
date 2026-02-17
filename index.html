@@ -35,7 +35,8 @@
     padding:8px;
   }
 
-  .wrap{ width:100%; margin:0 auto; }
+  /* ✅ ONLY CHANGE: make desktop match the compact trading guide size */
+  .wrap{ width:100%; max-width:560px; margin:0 auto; }
 
   .panel{
     background:var(--bg);
@@ -451,12 +452,12 @@
     return `${p.y}-${p.m}-${p.day}`;
   }
 
-  // Weekend market window: Fri 5PM -> Sun 6PM (ET)
+  // ✅ Weekend market window: Fri 5PM -> Sun 6PM (ET)
   function isWeekendMarketClosed(){
     const wd = weekdayShort(TZ);
     const now = minsInTZ(TZ);
-    const friCutoff = 17*60; // ✅ 5:00 PM Friday
-    const sunCutoff = 18*60; // ✅ 6:00 PM Sunday
+    const friCutoff = 17*60; // 5:00 PM Friday
+    const sunCutoff = 18*60; // 6:00 PM Sunday
 
     if(wd === "Fri" && now >= friCutoff) return true;
     if(wd === "Sat") return true;
@@ -609,7 +610,7 @@
     return `rgba(${r},${g},${b},${a})`;
   }
 
-  // Weekend UI (unchanged UI, only chip text at top)
+  // Weekend UI
   function renderWeekend(){
     topChip.textContent = "Weekend";
 
