@@ -35,8 +35,8 @@
     padding:8px;
   }
 
-  /* ✅ ONLY CHANGE: make desktop match the compact trading guide size */
-  .wrap{ width:100%; max-width:560px; margin:0 auto; }
+  /* ✅ CHANGE #1: increase desktop size so all 4 tabs are visible */
+  .wrap{ width:100%; max-width:760px; margin:0 auto; }
 
   .panel{
     background:var(--bg);
@@ -154,7 +154,6 @@
     padding:10px 10px;
     position:relative;
 
-    /* no colored line under title */
     border-bottom:1px solid rgba(255,255,255,.08);
     background: transparent;
   }
@@ -258,7 +257,6 @@
   }
   .check:active{ transform:scale(.96); }
 
-  /* tick centered better inside the box */
   .tick{
     width:9px;height:6px;
     border-left:2px solid transparent;
@@ -339,6 +337,7 @@
     body{ padding:6px; }
     .content{ padding:8px; }
     .chip{ font-size:11px; padding:6px 12px; min-width:160px; }
+    .wrap{ max-width: 100%; } /* keep phone the same */
   }
 </style>
 </head>
@@ -452,7 +451,7 @@
     return `${p.y}-${p.m}-${p.day}`;
   }
 
-  // ✅ Weekend market window: Fri 5PM -> Sun 6PM (ET)
+  // Weekend market window: Fri 5PM -> Sun 6PM (ET)
   function isWeekendMarketClosed(){
     const wd = weekdayShort(TZ);
     const now = minsInTZ(TZ);
@@ -482,7 +481,7 @@
     return "post";
   }
 
-  // Storage
+  // Storage (keep your existing robust fallback)
   const memStore = new Map();
 
   function canUseLocalStorage(){
@@ -588,19 +587,35 @@
     memStore.delete(key);
   }
 
-  function dayKey(){ return `chk_day_${ymd(TZ)}`; }
-  const stampKey = "chk_last_seen_day_et";
+  function addDays(d, n){
+    const x = new Date(d.getTime());
+    x.setDate(x.getDate() + n);
+    return x;
+  }
 
-  async function ensureDailyStamp(){
-    const today = ymd(TZ);
-    const last = await storeGet(stampKey, null);
-    if(last !== today){
-      await storeSet(stampKey, today);
+  /* ✅ CHANGE #2: persist checks per “cycle”, and auto-reset at start of LOCK.
+     Cycle starts at 8:00 PM ET (LOCK_START). */
+  function cycleId(tz, d=new Date()){
+    const now = minsInTZ(tz);
+    const baseDate = (now >= T.LOCK_START) ? addDays(d, 1) : d; // after 8pm, next cycle
+    return ymd(tz, baseDate);
+  }
+
+  function cycleKey(){ return `chk_cycle_${cycleId(TZ)}`; }
+  const cycleStampKey = "chk_last_cycle_id";
+
+  async function ensureCycle(){
+    const cur = cycleId(TZ);
+    const last = await storeGet(cycleStampKey, null);
+    if(last !== cur){
+      // new cycle -> reset all checkmarks automatically
+      await storeSet(cycleStampKey, cur);
+      await storeSet(cycleKey(), {}); // clear state at lock start
     }
   }
 
-  async function loadDayState(){ return await storeGet(dayKey(), {}); }
-  async function saveDayState(state){ await storeSet(dayKey(), state); }
+  async function loadState(){ return await storeGet(cycleKey(), {}); }
+  async function saveState(state){ await storeSet(cycleKey(), state); }
 
   function hexToRgba(hex, a){
     const c = hex.replace("#","").trim();
@@ -654,7 +669,7 @@
   async function renderWeekday(){
     topChip.textContent = "Checklist";
 
-    const state = await loadDayState();
+    const state = await loadState();
 
     // LIVE AUTO SWITCH
     const autoId = getAutoSessionKey();
@@ -771,7 +786,7 @@
 
       row.querySelector(".check").addEventListener("click", async () => {
         state[it.id] = !state[it.id];
-        await saveDayState(state);
+        await saveState(state);
 
         row.classList.remove("burst");
         void row.offsetWidth;
@@ -795,9 +810,10 @@
 
   let lastMode = null;
   let lastAutoKey = null;
+  let lastCycleSeen = null;
 
   async function render(){
-    await ensureDailyStamp();
+    await ensureCycle(); // ✅ auto reset at start of LOCK cycle
 
     if(isWeekendMarketClosed()){
       lastMode = "weekend";
@@ -809,7 +825,7 @@
   }
 
   resetBtn.addEventListener("click", async () => {
-    await storeDel(dayKey());
+    await storeSet(cycleKey(), {}); // reset current cycle only
     selectedGroupId = null;
     await render();
   });
@@ -821,15 +837,19 @@
     const weekendNow = isWeekendMarketClosed();
     const modeNow = weekendNow ? "weekend" : "weekday";
     const autoNow = weekendNow ? null : getAutoSessionKey();
+    const cycleNow = cycleId(TZ);
 
     const modeChanged = (lastMode !== modeNow);
     const sessionChanged = (!weekendNow && lastAutoKey !== autoNow);
+    const cycleChanged = (lastCycleSeen !== cycleNow);
 
-    if(modeChanged || sessionChanged){
+    if(modeChanged || sessionChanged || cycleChanged){
       lastAutoKey = autoNow;
+      lastCycleSeen = cycleNow;
       await render();
     }else{
       lastAutoKey = autoNow;
+      lastCycleSeen = cycleNow;
     }
   }, 1000);
 
